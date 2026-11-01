@@ -1,0 +1,4 @@
+interface:
+  display_name: "Unslop UI Design"
+  short_description: "Beautiful interfaces where every element earns its place"
+  default_prompt: "Use $unslop-ui-design to audit this interface and propose a distinctive, useful redesign."
