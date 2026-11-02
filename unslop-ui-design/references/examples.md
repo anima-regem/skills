@@ -2,16 +2,12 @@
 
 These are decision examples, not mandatory phrases or universal layouts. Use only capabilities and states the product actually supports.
 
-## Microcopy: remove filler, preserve meaning
+## Additional state-copy examples
 
 | Before | After / treatment | Why |
 | --- | --- | --- |
-| “Your hands. Your Malayalam.” above an upload control | Remove the slogan; label the action “Upload handwriting” | The control explains the next step. Real handwriting samples can provide the visual character. |
-| “Experience the future of creative expression” | Remove | It gives no task-specific information. Let the work and composition communicate quality. |
-| “Local · Experimental · v0.1” on every screen | Remove persistent badges unless one changes a decision | Replace only meaningful limitations with precise, contextual information. |
 | “No results found” | “No fonts match ‘[query]’.” plus “Clear search” | Explain the current result and provide recovery. |
 | “Something went wrong” after upload | If confirmed: “The image could not be read. Choose a PNG or JPEG and try again.” | Give the actual cause and supported recovery. Do not guess the cause. |
-| “AI-powered glyph intelligence” | “Suggest missing letters” | Name the useful action. Explain generation and review where the suggestions appear. |
 | “Export successful!” | “Font exported.” plus the actual file or download action | Confirm an observable result. Do not promise a file that was not created. |
 | An install command under a consumer download button | Move setup instructions to the contributor guide | Consumers need a usable font; developers need a separate setup path. |
 
@@ -43,6 +39,14 @@ Useful state copy might be “12 letters need review” with a link to those let
 Let live specimens show the fonts. A strong typographic composition can be both the expressive centerpiece and a functional preview. Provide readable names, meaningful controls, download format where needed, and license details. Inspect shaping, fallback, and the compiled font used by the preview; a screenshot specimen alone cannot demonstrate typed-text behavior.
 
 Keep a clear contribution entry point for contributors. Put repository setup, build commands, dependency lists, and submission mechanics in the linked contributor documentation. Do not put builder upload/edit controls into a gallery unless that is an actual supported task.
+
+### Marketing page
+
+**Person:** someone deciding whether a product is relevant and worth trying.
+
+**Critical path:** understand the real offer → examine relevant proof or demonstration → resolve an important objection → choose the next action.
+
+A concise explanation or striking hero can help an unfamiliar offer. It does not justify a forced tagline reveal, pricing tier, testimonial wall, or FAQ count. Use real claims and proof. A glyph gallery may demonstrate quality through the live specimen itself; a studio's main editing screen should keep the work and controls central. Do not transfer the same section sequence or animation density across all three surfaces.
 
 ## When apparently technical details are useful
 

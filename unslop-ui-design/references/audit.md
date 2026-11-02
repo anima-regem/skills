@@ -4,7 +4,9 @@ Use this for a screen-by-screen review. Scale the depth to the request; do not m
 
 ## Task brief
 
-Record the audience, situation, desired result, critical path, and constraints. Separate different users or journeys. Identify the evidence inspected: rendered screens, existing behavior, source, analytics, or user feedback. Distinguish observed friction from hypotheses.
+Record the audience, situation, desired result, critical path, surface type, and constraints. Separate different users or journeys. Identify the evidence inspected: rendered screens, existing behavior, source, analytics, or user feedback. Distinguish observed friction from hypotheses, durable preferences from project choices, and actual criteria from comfort targets.
+
+For an existing product, name the routes, forms, data, public component contracts, analytics hooks, accessibility behavior, and identity that must survive the redesign. Keep this review record outside the product UI.
 
 ## Element inventory
 
@@ -34,6 +36,7 @@ Decisions:
 - [ ] The next useful action is clear without reading a promotional paragraph.
 - [ ] Navigation and instructions do not repeat the same job in multiple places.
 - [ ] Secondary controls remain discoverable without competing for equal emphasis.
+- [ ] Critical information and primary actions remain accessible when details are collapsed.
 - [ ] Every visible element has an inventory decision and reason.
 
 ### Visual quality
@@ -41,6 +44,7 @@ Decisions:
 - [ ] The interface has a specific, coherent direction suited to its content.
 - [ ] Type scale, alignment, proportions, whitespace, and density create a readable hierarchy.
 - [ ] Color, surfaces, imagery, and motion feel intentional and consistent.
+- [ ] The design's expressive choices fit this surface rather than a mandatory landing-page template.
 - [ ] Narrow layouts, long names, real content, zoom, and relevant writing systems hold up.
 - [ ] Removing filler has not left a broken composition or erased useful identity.
 
@@ -49,12 +53,17 @@ Decisions:
 - [ ] Metrics, samples, claims, downloads, and interactions represent real behavior or are clearly identified as mockup content.
 - [ ] Status and version details appear when they affect a user decision or recovery.
 - [ ] Necessary limitations, license terms, and generated-content distinctions remain accessible.
+- [ ] Media and reference-inspired work have appropriate provenance and required attribution.
 - [ ] Developer setup is in documentation; actionable user troubleshooting is near the failure.
 - [ ] Empty, loading, error, and success states help the user proceed.
+- [ ] Permission, retry, interruption, and undo or confirmation paths are covered where relevant.
 
 ### Interaction and evidence
 
 - [ ] Labels, keyboard operation, focus, contrast, targets, and reduced motion have been checked as applicable.
+- [ ] Actual foreground/background pairs and interactive states have been measured where needed.
+- [ ] Frequent actions remain direct, and optional motion does not delay content or controls.
+- [ ] Relevant loading and interaction costs have been measured before claiming performance gains.
 - [ ] The primary path has been exercised through to a real result.
 - [ ] A relevant failure or interruption has a recovery path.
 - [ ] Rendered screens have been inspected at representative sizes and states.
@@ -62,4 +71,4 @@ Decisions:
 
 ## Review output
 
-Prioritize blocked or misleading tasks first, then decision friction, then visual polish. For each finding, include its location, observed effect, concrete remedy, and verification needed. Mark checklist items as unverified when evidence is unavailable; never treat a checked box as a substitute for evidence.
+Prioritize blocked or misleading tasks first, then decision friction, then visual polish. For each finding, include its location, observed effect, concrete remedy, and verification needed. Group repeated symptoms by their shared cause. Mark checklist items as unverified when evidence is unavailable; never treat a checked box as a substitute for evidence or report a stylistic preference as a verified defect.
