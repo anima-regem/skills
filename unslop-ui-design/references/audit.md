@@ -60,6 +60,7 @@ Decisions:
 
 ### Interaction and evidence
 
+- [ ] Familiar, frequent actions use recognisable icons with tooltips and accessible names; words remain where no common symbol exists or the action is consequential.
 - [ ] Labels, keyboard operation, focus, contrast, targets, and reduced motion have been checked as applicable.
 - [ ] Actual foreground/background pairs and interactive states have been measured where needed.
 - [ ] Frequent actions remain direct, and optional motion does not delay content or controls.

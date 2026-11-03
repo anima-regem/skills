@@ -75,6 +75,8 @@ Use stable nouns and concrete action labels. Put short explanations at the momen
 
 Keep field labels, accessible names, unfamiliar distinctions, and useful guidance. Success copy should confirm an actual result. Errors should be specific, calm, and close to the affected operation. Preserve work on failure; offer retry or an alternative where appropriate. Prefer undo for easily reversible routine actions and explain the consequence before an irreversible action.
 
+Use recognisable icons for familiar objects and actions. Where people already know a symbol for something (file, open, save, undo, print, zoom, or a domain object such as a wall, door, or window in a building tool), show an icon button instead of a text button. Give it a tooltip with the name and shortcut, and an accessible name. Dense toolbars become calmer and quicker to scan, and the tooltip is there when someone needs it. Keep words, or an icon with a word, for actions that have no widely understood symbol, for consequential or destructive actions, for the primary call to action, and for menu titles and menu items. Draw icons from one coherent set with consistent stroke, size, and optical alignment. If users would have to guess what an icon means, add the label back.
+
 Use truthful previews, downloads, metrics, and claims. Label simulated mockup behavior. Preserve license and provenance details through concise summaries and discoverable full information. See [examples and exceptions](references/examples.md), including separate gallery and studio workflows.
 
 ## 5. Fit motion to purpose and frequency
