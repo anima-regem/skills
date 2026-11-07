@@ -1,0 +1,17 @@
+test_01_read_records_rejects_direct_duplicate_id (__main__.DuplicateKeyAcceptance.test_01_read_records_rejects_direct_duplicate_id) ... ok
+test_02_escaped_equivalent_id_is_rejected_in_api_and_cli (__main__.DuplicateKeyAcceptance.test_02_escaped_equivalent_id_is_rejected_in_api_and_cli) ... ok
+test_03_late_duplicate_h1_encode_publishes_neither_view (__main__.DuplicateKeyAcceptance.test_03_late_duplicate_h1_encode_publishes_neither_view) ... ok
+test_04_book_rejects_late_duplicate_without_publishing_file (__main__.DuplicateKeyAcceptance.test_04_book_rejects_late_duplicate_without_publishing_file) ... ok
+test_05_g1_decode_rejects_late_duplicate_without_partial_review (__main__.DuplicateKeyAcceptance.test_05_g1_decode_rejects_late_duplicate_without_partial_review) ... ok
+test_06_g2_encode_rejects_duplicate_codebook_messages (__main__.DuplicateKeyAcceptance.test_06_g2_encode_rejects_duplicate_codebook_messages) ... ok
+test_07_g2_decode_rejects_duplicate_codebook_messages (__main__.DuplicateKeyAcceptance.test_07_g2_decode_rejects_duplicate_codebook_messages) ... ok
+test_08_nested_duplicates_are_detected_before_schema_validation (__main__.DuplicateKeyAcceptance.test_08_nested_duplicates_are_detected_before_schema_validation) ... ok
+test_09_existing_reviewer_evidence_is_preserved (__main__.DuplicateKeyAcceptance.test_09_existing_reviewer_evidence_is_preserved) ... ok
+test_10_unicode_literals_and_repeated_text_roundtrip_in_g1 (__main__.DuplicateKeyAcceptance.test_10_unicode_literals_and_repeated_text_roundtrip_in_g1) ... ok
+test_11_unicode_literals_and_repeated_text_roundtrip_in_g2 (__main__.DuplicateKeyAcceptance.test_11_unicode_literals_and_repeated_text_roundtrip_in_g2) ... ok
+test_12_g2_decode_rejects_late_duplicate_reference (__main__.DuplicateKeyAcceptance.test_12_g2_decode_rejects_late_duplicate_reference) ... ok
+
+----------------------------------------------------------------------
+Ran 12 tests in 2.714s
+
+OK

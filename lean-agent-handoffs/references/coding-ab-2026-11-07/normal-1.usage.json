@@ -1,0 +1,110 @@
+{
+  "schema_version": 1,
+  "arm": "normal-1",
+  "coordinator_thread_id": "01a1b573-96b0-7c20-8481-4ce26010b21a",
+  "source": "local_native_token_count_and_token_usage_record",
+  "model_request_count_source": "unique_native_token_usage_record_response_ids",
+  "scope": "coordinator_plus_all_descendants",
+  "child_count": 1,
+  "descendant_count": 1,
+  "usage": {
+    "input": 1370693,
+    "cached_input": 1309440,
+    "output": 7070,
+    "reasoning_output": 2076,
+    "total": 1377763
+  },
+  "model_request_count": 32,
+  "sessions": [
+    {
+      "thread_id": "01a1b573-96b0-7c20-8481-4ce26010b21a",
+      "parent_thread_id": null,
+      "created_at": "2026-11-07T10:00:14.315Z",
+      "usage": {
+        "input": 745178,
+        "cached_input": 713472,
+        "output": 2552,
+        "reasoning_output": 933,
+        "total": 747730
+      },
+      "token_count_timestamp": "2026-11-07T10:02:41.440Z",
+      "token_count_event_count": 20,
+      "model_request_count": 20,
+      "models_and_efforts": [
+        {
+          "model": "gpt-6.1-sol",
+          "effort": "high"
+        }
+      ],
+      "own_turn_count": 1,
+      "all_own_turns_completed": true,
+      "tool_call_audit": {
+        "own_call_count": 18,
+        "counts_by_tool": {
+          "collaboration.send_message": 2,
+          "collaboration.spawn_agent": 1,
+          "collaboration.wait_agent": 5,
+          "exec": 10
+        },
+        "skill_entry_read_evidence": {
+          "path": "$HOME/.agents/skills/lean-agent-handoffs/SKILL.md",
+          "count": 0
+        },
+        "spawn_calls": [
+          {
+            "fork_turns": "all",
+            "parameter_status": "omitted_default_all"
+          }
+        ]
+      },
+      "role": "coordinator",
+      "child_count": 1
+    },
+    {
+      "thread_id": "01a1b573-c161-7e82-b3b4-48cb611a86f5",
+      "parent_thread_id": "01a1b573-96b0-7c20-8481-4ce26010b21a",
+      "created_at": "2026-11-07T10:00:24.712Z",
+      "usage": {
+        "input": 625515,
+        "cached_input": 595968,
+        "output": 4518,
+        "reasoning_output": 1143,
+        "total": 630033
+      },
+      "token_count_timestamp": "2026-11-07T10:02:21.943Z",
+      "token_count_event_count": 12,
+      "model_request_count": 12,
+      "models_and_efforts": [
+        {
+          "model": "gpt-6.1-sol",
+          "effort": "high"
+        }
+      ],
+      "own_turn_count": 1,
+      "all_own_turns_completed": true,
+      "tool_call_audit": {
+        "own_call_count": 9,
+        "counts_by_tool": {
+          "collaboration.send_message": 3,
+          "exec": 6
+        },
+        "skill_entry_read_evidence": {
+          "path": "$HOME/.agents/skills/lean-agent-handoffs/SKILL.md",
+          "count": 0
+        },
+        "spawn_calls": []
+      },
+      "role": "descendant",
+      "child_count": 0
+    }
+  ],
+  "validation": {
+    "total_equals_input_plus_output": true,
+    "cached_input_subset_of_input": true,
+    "reasoning_output_subset_of_output": true,
+    "per_request_sum_equals_session_cumulative": true,
+    "inherited_tool_calls_excluded_by_ancestor_and_native_turn_ids": true,
+    "exactly_one_child_and_no_grandchildren": true,
+    "all_own_turns_completed": true
+  }
+}

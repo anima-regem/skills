@@ -1,6 +1,6 @@
 # Handoff A/B measurements
 
-The skill reduces delegated context and redundant model requests. The observed runs reached the 70% token target through batching and isolated task context. Exact one-off message encoding is a separate problem, and the codec experiment below found no gain over H1.
+Observed savings depend on the workflow. A later [real coding trial](coding-ab-2026-11-07/REPORT.md) confirmed automatic skill use but saved only **9.3%** of coordinator-plus-worker tokens, missing the 70% target. Both patches passed twelve independent acceptance checks. The earlier read-only runs below reached the target through batching and isolated task context. Exact one-off message encoding is a separate problem, and the codec experiment below found no gain over H1.
 
 ## Reported child-model usage
 

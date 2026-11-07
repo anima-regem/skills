@@ -1,0 +1,70 @@
+{
+  "base_commit": "231092c41ca5987ee23f41b46c6d5118a4f245a9",
+  "order": [
+    "normal-1",
+    "lean-1",
+    "lean-2",
+    "normal-2"
+  ],
+  "model": "gpt-6.1-sol",
+  "reasoning_effort": "high",
+  "coding_subagents_per_arm": 1,
+  "pilot": "normal-1",
+  "measured_order": [
+    "lean-1",
+    "normal-2"
+  ],
+  "unused_arms": [
+    "lean-2"
+  ],
+  "amendment": "After the normal-1 setup pilot exposed TMPDIR-dependent tokenizer cache misses, use one fresh matched pair with an explicit shared prewarmed cache. Retain pilot usage and results separately. Decided before observing any lean coding result.",
+  "acceptance_sha256": "6bda0b85e2e6bdcc9ec0e2b20dfedd78814a92b9320863b73c6063d7eee38c9c",
+  "observer_run_directory": "$RUN_DIR",
+  "task_original_sha256": "ff46a19f59ebd96c14ff5601e7f13e857d0f576104867ed02705e59728cf3c25",
+  "task_published_paths": "runtime and user paths are replaced by $RUN_DIR and $HOME",
+  "installed_skill_sha256": "03245ee463fd5dbdfba6eeb677d77808a1062613af0b70ed98ba98dfffbb4498",
+  "global_instruction_sha256": "3a12d2652b98f34c77cfbcca99a044059ceb7e22e66606ddafbbbdb6a753c7f9",
+  "codex_version": "codex-cli 0.166.0",
+  "coordinator_instructions": {
+    "normal-2": "# Controlled coding experiment\n\nThis checkout is one isolated arm of a user-authorized A/B coding test. Use exactly one coding subagent. Only the coordinator may delegate. The worker may edit the two files named in the task and must not spawn further agents. Keep all code changes and tests inside this checkout. Do not read other arms or observer files.\n\nFor this control arm only, the user's A/B request overrides the global lean-agent-handoffs rule. Do not load or apply that skill. Use ordinary delegation with the runtime's default context behavior. This exception is scoped to this checkout and run.\n",
+    "lean-1": "# Controlled coding experiment\n\nThis checkout is one isolated arm of a user-authorized A/B coding test. Use exactly one coding subagent. Only the coordinator may delegate. The worker may edit the two files named in the task and must not spawn further agents. Keep all code changes and tests inside this checkout. Do not read other arms or observer files.\n\nUse the usual installed skills and global instructions automatically for delegation. Keep the task, scope, and acceptance requirements intact.\n"
+  },
+  "coordinator_argv": [
+    "codex",
+    "--ask-for-approval",
+    "never",
+    "exec",
+    "--sandbox",
+    "workspace-write",
+    "-C",
+    "$RUN_DIR/ARM",
+    "--json",
+    "-o",
+    "$RUN_DIR/ARM.final.txt",
+    "-"
+  ],
+  "shared_environment": {
+    "TIKTOKEN_CACHE_DIR": "$RUN_DIR/tokenizer-cache"
+  },
+  "quality": {
+    "normal-1": {
+      "game_tests": 29,
+      "benchmark_tests": 11,
+      "independent_acceptance": 12,
+      "acceptance_passed": true
+    },
+    "lean-1": {
+      "game_tests": 29,
+      "benchmark_tests": 11,
+      "independent_acceptance": 12,
+      "acceptance_passed": true
+    },
+    "normal-2": {
+      "game_tests": 27,
+      "benchmark_tests": 11,
+      "independent_acceptance": 12,
+      "acceptance_passed": true
+    }
+  },
+  "coding_outputs": "Patches retained as experiment artifacts; no coding-arm patch is applied to the main checkout."
+}

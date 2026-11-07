@@ -1,0 +1,189 @@
+diff --git a/compact-agent-handoffs/scripts/game.py b/compact-agent-handoffs/scripts/game.py
+index 8441ef8..2040dd2 100644
+--- a/compact-agent-handoffs/scripts/game.py
++++ b/compact-agent-handoffs/scripts/game.py
+@@ -21,6 +21,20 @@ INPUT_FIELDS = {"id", "from", "to", "h1"}
+ EVENT_FIELDS = {"format", "tokenizer", "encoding", "id", "from", "to", "tokens"}
+ 
+ 
++class DuplicateKeyError(ValueError):
++    pass
++
++
++def unique_object(pairs: list) -> dict:
++    """Reject repeated decoded names in each JSON object before building it."""
++    result = {}
++    for key, value in pairs:
++        if key in result:
++            raise DuplicateKeyError(f"duplicate JSON object key {key!r}")
++        result[key] = value
++    return result
++
++
+ def json_line(record: dict) -> str:
+     return json.dumps(record, ensure_ascii=False, separators=(",", ":")) + "\n"
+ 
+@@ -178,9 +192,11 @@ def read_records(source: str) -> list:
+     records = []
+     for number, line in enumerate(lines, start=1):
+         try:
+-            records.append(json.loads(line))
++            records.append(json.loads(line, object_pairs_hook=unique_object))
+         except json.JSONDecodeError as error:
+             raise ValueError(f"line {number}: invalid JSON") from error
++        except DuplicateKeyError as error:
++            raise ValueError(f"line {number}: {error}") from error
+     return records
+ 
+ 
+@@ -221,7 +237,7 @@ def main() -> None:
+             return
+         book = None
+         if args.codebook is not None:
+-            book = json.loads(args.codebook.read_text(encoding="utf-8"))
++            book = json.loads(args.codebook.read_text(encoding="utf-8"), object_pairs_hook=unique_object)
+         if args.command == "encode":
+             if args.format == "G2":
+                 events, reviews = encode_dictionary(records, book)
+diff --git a/compact-agent-handoffs/scripts/test_game.py b/compact-agent-handoffs/scripts/test_game.py
+index da200b0..37dd638 100644
+--- a/compact-agent-handoffs/scripts/test_game.py
++++ b/compact-agent-handoffs/scripts/test_game.py
+@@ -146,6 +146,52 @@ class GameCliTests(unittest.TestCase):
+                 self.assertEqual(result.stdout, "")
+                 self.assertFalse(log.exists())
+ 
++    def test_late_duplicate_keys_report_line_and_key_before_publication(self):
++        valid = {"id": "m1", "from": "a", "to": "b", "h1": "U Ready"}
++        duplicate_records = [
++            ('{"id":"m2","id":"m3","from":"a","to":"b","h1":"U Ready"}', "id"),
++            ('{"id":"m2","\\u0069d":"m3","from":"a","to":"b","h1":"U Ready"}', "id"),
++            ('{"extra":{"nested":1,"\\u006eested":2}}', "nested"),
++            ('{"extra":[{"nested":null,"nested":false}]}', "nested"),
++        ]
++        for invalid, key in duplicate_records:
++            for existing in (False, True):
++                with self.subTest(invalid=invalid, existing=existing), tempfile.TemporaryDirectory() as directory:
++                    log = Path(directory) / "reviewer.jsonl"
++                    original = b"existing reviewer evidence\n"
++                    if existing:
++                        log.write_bytes(original)
++                    result = self.run_cli(
++                        "encode", "-", "--reviewer-log", log, input_text=jsonl([valid]) + invalid + "\n"
++                    )
++                    self.assertEqual(result.returncode, 2)
++                    self.assertIn(f"line 2: duplicate JSON object key {key!r}", result.stderr)
++                    self.assertEqual(result.stdout, "")
++                    if existing:
++                        self.assertEqual(log.read_bytes(), original)
++                    else:
++                        self.assertFalse(log.exists())
++
++    def test_json_syntax_errors_keep_their_line_diagnostic(self):
++        valid = {"id": "m1", "from": "a", "to": "b", "h1": "U Ready"}
++        with tempfile.TemporaryDirectory() as directory:
++            log = Path(directory) / "reviewer.jsonl"
++            result = self.run_cli(
++                "encode", "-", "--reviewer-log", log, input_text=jsonl([valid]) + '{"id":\n'
++            )
++            self.assertEqual(result.returncode, 2)
++            self.assertEqual(result.stderr, "game: line 2: invalid JSON\n")
++            self.assertEqual(result.stdout, "")
++            self.assertFalse(log.exists())
++
++    def test_g1_decode_rejects_duplicate_keys_before_any_output(self):
++        valid = encode_event({"id": "m1", "from": "a", "to": "b", "h1": "U Ready"}, "o200k_base")
++        invalid = json.dumps({**valid, "id": "m2"})[:-1] + ',"\\u0069d":"m3"}\n'
++        result = self.run_cli("decode", "-", input_text=jsonl([valid]) + invalid)
++        self.assertEqual(result.returncode, 2)
++        self.assertIn("line 2: duplicate JSON object key 'id'", result.stderr)
++        self.assertEqual(result.stdout, "")
++
+     def test_file_input_matches_stdin(self):
+         message = {"id": "m1", "from": "a", "to": "b", "h1": "U café/客户 \u2028 Ready"}
+         with tempfile.TemporaryDirectory() as directory:
+@@ -318,6 +364,84 @@ class DictionaryCliTests(unittest.TestCase):
+             self.assertEqual(result.stdout, "")
+             self.assertEqual(book_path.read_bytes(), original)
+ 
++    def test_duplicate_codebook_keys_are_rejected_for_encode_and_decode(self):
++        book = make_codebook(self.messages)
++        stream, _ = encode_dictionary(self.messages, book)
++        duplicate_books = [
++            ('{"format":"G2-book","format":"G2-book","messages":["U Ready"]}', "format"),
++            ('{"format":"G2-book","messages":[],"\\u006dessages":["U Ready"]}', "messages"),
++            ('{"format":"G2-book","messages":[{"nested":1,"\\u006eested":2}]}', "nested"),
++        ]
++        for content, key in duplicate_books:
++            for command in ("encode", "decode"):
++                with self.subTest(content=content, command=command), tempfile.TemporaryDirectory() as directory:
++                    book_path = Path(directory) / "book.json"
++                    book_path.write_text(content, encoding="utf-8")
++                    log = Path(directory) / "reviewer.jsonl"
++                    original = b"existing reviewer evidence\n"
++                    log.write_bytes(original)
++                    extra = ["--format", "G2", "--reviewer-log", log] if command == "encode" else []
++                    result = self.run_cli(
++                        command, "-", "--codebook", book_path, *extra,
++                        input_text=jsonl(self.messages if command == "encode" else stream),
++                    )
++                    self.assertEqual(result.returncode, 2)
++                    self.assertIn(f"duplicate JSON object key {key!r}", result.stderr)
++                    self.assertEqual(result.stdout, "")
++                    self.assertEqual(log.read_bytes(), original)
++                    self.assertEqual(book_path.read_text(encoding="utf-8"), content)
++
++    def test_g2_jsonl_duplicate_keys_report_header_and_event_lines(self):
++        book = make_codebook(self.messages)
++        stream, _ = encode_dictionary(self.messages, book)
++        invalid_streams = [
++            (json.dumps(stream[0])[:-1] + ',"\\u0062ook":"other"}\n' + jsonl(stream[1:]), 1, "book"),
++            (jsonl(stream[:-1]) + json.dumps(stream[-1])[:-1] + ',"\\u0072ef":0}\n', 3, "ref"),
++        ]
++        with tempfile.TemporaryDirectory() as directory:
++            book_path = Path(directory) / "book.json"
++            book_path.write_text(json.dumps(book), encoding="utf-8")
++            for content, line, key in invalid_streams:
++                with self.subTest(line=line, key=key):
++                    result = self.run_cli("decode", "-", "--codebook", book_path, input_text=content)
++                    self.assertEqual(result.returncode, 2)
++                    self.assertIn(f"line {line}: duplicate JSON object key {key!r}", result.stderr)
++                    self.assertEqual(result.stdout, "")
++
++    def test_duplicate_jsonl_keys_prevent_codebook_publication(self):
++        invalid = json.dumps(self.messages[-1])[:-1] + ',"id":"m3"}\n'
++        with tempfile.TemporaryDirectory() as directory:
++            book_path = Path(directory) / "book.json"
++            result = self.run_cli("book", "-", "--output", book_path, input_text=jsonl(self.messages[:1]) + invalid)
++            self.assertEqual(result.returncode, 2)
++            self.assertIn("line 2: duplicate JSON object key 'id'", result.stderr)
++            self.assertEqual(result.stdout, "")
++            self.assertFalse(book_path.exists())
++
++    def test_repeated_values_and_quoted_key_literals_round_trip_in_g1_and_g2(self):
++        h1 = 'U café/客户 \u2028 "id":"same","id":"same"'
++        messages = [
++            {"id": "m1", "from": "a", "to": "a", "h1": h1},
++            {"id": "m2", "from": "a", "to": "a", "h1": h1},
++        ]
++        with tempfile.TemporaryDirectory() as directory:
++            book_path = Path(directory) / "book.json"
++            prepared = self.run_cli("book", "-", "--output", book_path, input_text=jsonl(messages))
++            self.assertEqual(prepared.returncode, 0, prepared.stderr)
++            for format_name in ("G1", "G2"):
++                with self.subTest(format=format_name):
++                    log = Path(directory) / f"{format_name}-reviewer.jsonl"
++                    extra = ["--codebook", book_path] if format_name == "G2" else []
++                    encoded = self.run_cli(
++                        "encode", "-", "--format", format_name, *extra,
++                        "--reviewer-log", log, input_text=jsonl(messages),
++                    )
++                    self.assertEqual(encoded.returncode, 0, encoded.stderr)
++                    replay = self.run_cli("decode", "-", *extra, input_text=encoded.stdout)
++                    self.assertEqual(replay.returncode, 0, replay.stderr)
++                    self.assertEqual(replay.stdout, log.read_text(encoding="utf-8"))
++                    self.assertEqual([review["h1"] for review in records(replay.stdout)], [h1, h1])
++
+     def test_unknown_message_and_missing_book_prevent_outputs(self):
+         with tempfile.TemporaryDirectory() as directory:
+             book_path = Path(directory) / "book.json"

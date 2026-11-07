@@ -12,6 +12,8 @@ Each skill lives in its own directory with a `SKILL.md` entry point and any supp
 
 `lean-agent-handoffs` enables implicit invocation for subagent coordination. Install or symlink its folder under `~/.agents/skills/` for discovery across projects. A global `~/.codex/AGENTS.md` rule to apply the skill before spawning, resuming, or messaging subagents makes that preference explicit. [Codex skill discovery](https://learn.chatgpt.com/docs/build-skills), [global instructions](https://learn.chatgpt.com/docs/agent-configuration/agents-md).
 
+The real coding A/B trial observed 9.3% fewer coordinator-plus-worker tokens, below the 70% target. Both patches passed twelve independent acceptance checks. [Coding trial report](lean-agent-handoffs/references/coding-ab-2026-11-07/REPORT.md).
+
 ## External references
 
 - [Skills and projects from Dubibubi's video](references/video-skills-lcwt00lrpzg.md) — all 14 description-linked projects with original creator credits, plus clearly separated comparison references.
