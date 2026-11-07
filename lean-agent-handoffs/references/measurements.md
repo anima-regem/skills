@@ -36,10 +36,10 @@ The six paired prompts use identical ordinary-English questions, output schemas,
 
 | Encoding | Full-source dispatch, context, and replies | Lean dispatch, context, replies, and setup | Reduction |
 | --- | --- | --- | --- |
-| o200k_base | 15,253 | 3,158 | 79.3% |
-| cl100k_base | 14,962 | 3,099 | 79.3% |
+| o200k_base | 15,253 | 3,254 | 78.7% |
+| cl100k_base | 14,962 | 3,195 | 78.6% |
 
-The proxy charges a full skill read for every lean handoff, 183 tokens under `o200k_base` or 181 under `cl100k_base`. Individual paired reductions range from 72.3% to 82.9%. Both arms answered all six questions correctly, with no additional context retrieval. Tool/system envelopes and private reasoning belong to the separate native-usage measurement above, rather than this tokenizer proxy.
+The proxy charges a full read of the current automatically invoked skill for every lean handoff, 199 tokens under `o200k_base` or 197 under `cl100k_base`. Individual paired reductions range from 71.7% to 82.2%. Both arms answered all six questions correctly, with no additional context retrieval. Tool/system envelopes and private reasoning belong to the separate native-usage measurement above, rather than this tokenizer proxy. Native observations were collected before the automatic-activation wording was added.
 
 ## Review and reproduce
 

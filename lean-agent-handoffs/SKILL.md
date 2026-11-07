@@ -1,9 +1,11 @@
 ---
 name: lean-agent-handoffs
-description: Reduce main-agent and subagent handoff tokens through complete task context, batching, and fewer exchanges.
+description: Use automatically before spawning, resuming, or messaging subagents, including nested delegation. Reduce context and handoff tokens.
 ---
 
 # Lean Agent Handoffs
+
+Apply before any agent delegates or coordinates with a subagent.
 
 Batch related independent questions before spawning. For isolated work, use `fork_turns="none"`. Send the goal, scope, required result, and minimal exact source with its dependencies. Preserve restrictions, uncertainty, and checks. Request missing context when it affects the answer.
 
