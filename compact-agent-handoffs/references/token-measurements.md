@@ -25,10 +25,10 @@ The shared `SKILL.md` contains the entire H1 vocabulary. Recipients that already
 
 | Encoding | Previous instructions | H1 instructions | Previous instructions plus 16 messages | H1 instructions plus 16 messages |
 | --- | --- | --- | --- | --- |
-| o200k_base | 286 | 289 | 608 | 557 |
-| cl100k_base | 284 | 286 | 608 | 554 |
+| o200k_base | 286 | 315 | 608 | 583 |
+| cl100k_base | 284 | 312 | 608 | 580 |
 
-These totals assume one full instruction load per variant. Each additional participant loading instructions adds another setup cost. At the fixture's average saving, the extra 3 tokens for H1 over the previous skill are offset within one handoff with `o200k_base`. Adding the entire H1 skill to a context that already holds the previous skill takes about 86 comparable handoffs to offset its 289 additional instruction tokens.
+These totals assume one full instruction load per variant, including the current discovery text and link to optional game mode. Each additional participant loading instructions adds another setup cost. At the fixture's average saving, the extra 29 tokens for H1 over the previous skill are offset after about nine handoffs with `o200k_base`. Adding the entire H1 skill to a context that already holds the previous skill takes about 94 comparable handoffs to offset its 315 additional instruction tokens. The [game benchmark](game.md) measures the separate spectator representation.
 
 These are token counts for authored examples. Tool envelopes, conversation replay, caching, retries, additional negotiation, and decoder tool calls are outside the totals. Actual costs depend on the runtime and model. A short message may gain nothing from H1.
 

@@ -1,0 +1,2 @@
+{"id":"m1","from":"scout","to":"builder","h1":"T inspect map for exits\nS ro"}
+{"id":"m2","from":"builder","to":"scout","h1":"U café gate open\nN inspect east path"}

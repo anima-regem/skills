@@ -1,6 +1,6 @@
 ---
 name: compact-agent-handoffs
-description: Reduce message tokens in parent, peer, and child agent handoffs during multi-agent work.
+description: Use compact H1 handoffs for multi-agent work or render game dialogue as token-ID spectator messages with decoded reviewer logs.
 ---
 
 # Compact Agent Handoffs
@@ -23,3 +23,5 @@ Use normal agent channels and reachable IDs. `send_message` delivers updates; `f
 Prefer plain language for uninitialized recipients, shorter messages, multiline literals, ambiguity, or approvals. Keep exchanges in the normal transcript.
 
 Reviewers can use the [decoder](references/decoder.md). See [measurements](references/token-measurements.md) for savings and setup costs.
+
+For a token-ID spectator view with decoded reviewer logs, use [game mode](references/game.md).

@@ -1,4 +1,4 @@
 interface:
   display_name: "Compact Agent Handoffs"
-  short_description: "Use fewer tokens for agent-to-agent updates"
-  default_prompt: "Use $compact-agent-handoffs to coordinate this task with subagents."
+  short_description: "Compact handoffs and reversible spectator game messages"
+  default_prompt: "Use $compact-agent-handoffs to coordinate agents or prepare a token-ID spectator game with reviewer logs."
