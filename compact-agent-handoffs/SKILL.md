@@ -1,6 +1,6 @@
 ---
 name: compact-agent-handoffs
-description: Use compact H1 handoffs for multi-agent work or render game dialogue as token-ID spectator messages with decoded reviewer logs.
+description: Use compact H1 handoffs for multi-agent work or render game dialogue as coded spectator messages with decoded reviewer logs.
 ---
 
 # Compact Agent Handoffs
@@ -24,4 +24,4 @@ Prefer plain language for uninitialized recipients, shorter messages, multiline 
 
 Reviewers can use the [decoder](references/decoder.md). See [measurements](references/token-measurements.md) for savings and setup costs.
 
-For a token-ID spectator view with decoded reviewer logs, use [game mode](references/game.md).
+For shared-codebook or token-ID spectator games with decoded reviewer logs, use [game mode](references/game.md).

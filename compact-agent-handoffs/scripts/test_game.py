@@ -10,7 +10,7 @@ from pathlib import Path
 
 import tiktoken
 
-from game import decode_event, encode_event
+from game import decode_dictionary, decode_event, encode_dictionary, encode_event, make_codebook
 
 
 SCRIPT = Path(__file__).with_name("game.py")
@@ -196,6 +196,153 @@ class GameCliTests(unittest.TestCase):
         result = self.run_cli("decode", "-", input_text=jsonl([valid, invalid]))
         self.assertNotEqual(result.returncode, 0)
         self.assertEqual(result.stdout, "")
+
+
+class DictionaryCodecTests(unittest.TestCase):
+    def setUp(self):
+        self.messages = [
+            {"id": "m1", "from": "a", "to": "b", "h1": 'U café/客户 \u2028 "x | y; z"\nS ro\n'},
+            {"id": "m2", "from": "b", "to": "a", "h1": "C  exact  spaces  "},
+        ]
+        self.book = make_codebook(self.messages)
+
+    def test_codebook_preserves_first_occurrence_and_exact_messages(self):
+        repeated = {**self.messages[0], "id": "m3"}
+        book = make_codebook(self.messages + [repeated])
+        self.assertEqual(book, {"format": "G2-book", "messages": [item["h1"] for item in self.messages]})
+        stream, reviews = encode_dictionary(self.messages + [repeated], book)
+        self.assertEqual([event["ref"] for event in stream[1:]], [0, 1, 0])
+        self.assertEqual([review["h1"] for review in reviews], [item["h1"] for item in self.messages] + [repeated["h1"]])
+        self.assertEqual(reviews[0]["decoded"], 'Update: café/客户 \u2028 "x | y; z"\nScope: Read only.')
+        self.assertEqual(reviews[1]["decoded"], "Check:  exact  spaces  ")
+        self.assertEqual(decode_dictionary(stream, book), reviews)
+        for event, review in zip(stream[1:], reviews):
+            self.assertEqual(review["format"], "G2-review")
+            self.assertEqual(review["book"], stream[0]["book"])
+            for field in ("id", "from", "to", "ref"):
+                self.assertEqual(review[field], event[field])
+
+    def test_book_binding_is_independent_of_object_key_order(self):
+        stream, reviews = encode_dictionary(self.messages, self.book)
+        reordered = {"messages": self.book["messages"], "format": self.book["format"]}
+        self.assertEqual(decode_dictionary(stream, reordered), reviews)
+        changed = {**self.book, "messages": list(reversed(self.book["messages"]))}
+        with self.assertRaises(ValueError):
+            decode_dictionary(stream, changed)
+
+    def test_invalid_books_and_unknown_messages_are_rejected(self):
+        invalid = [
+            {},
+            {"format": "other", "messages": ["U Ready"]},
+            {"format": "G2-book", "messages": []},
+            {"format": "G2-book", "messages": "U Ready"},
+            {"format": "G2-book", "messages": ["U Ready", "U Ready"]},
+            {"format": "G2-book", "messages": ["X unknown"]},
+            {"format": "G2-book", "messages": ["U \ud800"]},
+            {"format": "G2-book", "messages": [True]},
+        ]
+        for book in invalid:
+            with self.subTest(book=book), self.assertRaises(ValueError):
+                encode_dictionary(self.messages, book)
+        with self.assertRaises(ValueError):
+            encode_dictionary([{**self.messages[0], "h1": "U Unknown message"}], self.book)
+
+    def test_malformed_streams_and_references_are_rejected(self):
+        stream, _ = encode_dictionary(self.messages, self.book)
+        invalid = [
+            [],
+            [stream[0]],
+            [{**stream[0], "book": "0" * 64}, *stream[1:]],
+            [{**stream[0], "format": "other"}, *stream[1:]],
+            [stream[0], {**stream[1], "from": False}],
+            [stream[0], {**stream[1], "extra": "unexpected"}],
+            [stream[0], {key: value for key, value in stream[1].items() if key != "to"}],
+            [stream[0], stream[1], stream[1]],
+        ]
+        invalid.extend([stream[0], {**stream[1], "ref": reference}] for reference in (True, -1, 2, 0.0, None))
+        for malformed in invalid:
+            with self.subTest(stream=malformed), self.assertRaises(ValueError):
+                decode_dictionary(malformed, self.book)
+
+    def test_duplicate_source_ids_are_rejected(self):
+        with self.assertRaises(ValueError):
+            encode_dictionary([self.messages[0], self.messages[0]], self.book)
+
+
+class DictionaryCliTests(unittest.TestCase):
+    run_cli = GameCliTests.run_cli
+
+    def setUp(self):
+        self.messages = [
+            {"id": "m1", "from": "a", "to": "b", "h1": 'U café/客户 \u2028 "x | y; z"\nS ro\n'},
+            {"id": "m2", "from": "b", "to": "a", "h1": "C  exact  spaces  "},
+        ]
+
+    def test_book_encode_and_replay_preserve_reviewer_log(self):
+        with tempfile.TemporaryDirectory() as directory:
+            book_path = Path(directory) / "book.json"
+            log = Path(directory) / "reviewer.jsonl"
+            prepared = self.run_cli("book", "-", "--output", book_path, input_text=jsonl(self.messages))
+            self.assertEqual(prepared.returncode, 0, prepared.stderr)
+            encoded = self.run_cli(
+                "encode", "-", "--format", "G2", "--codebook", book_path,
+                "--reviewer-log", log, input_text=jsonl(self.messages),
+            )
+            self.assertEqual(encoded.returncode, 0, encoded.stderr)
+            spectator = records(encoded.stdout)
+            self.assertEqual(spectator[0]["format"], "G2")
+            self.assertEqual(len(spectator), len(self.messages) + 1)
+            self.assertTrue(all("h1" not in event and "decoded" not in event for event in spectator))
+            book = json.loads(book_path.read_text(encoding="utf-8"))
+            book_path.write_text(json.dumps(book, ensure_ascii=False, indent=2, sort_keys=True), encoding="utf-8")
+            replay = self.run_cli("decode", "-", "--codebook", book_path, input_text=encoded.stdout)
+            self.assertEqual(replay.returncode, 0, replay.stderr)
+            self.assertEqual(replay.stdout, log.read_text(encoding="utf-8"))
+            self.assertEqual([event["h1"] for event in records(replay.stdout)], [item["h1"] for item in self.messages])
+            unchanged_log = log.read_bytes()
+            retry = self.run_cli(
+                "encode", "-", "--format", "G2", "--codebook", book_path,
+                "--reviewer-log", log, input_text=jsonl(self.messages),
+            )
+            self.assertNotEqual(retry.returncode, 0)
+            self.assertEqual(retry.stdout, "")
+            self.assertEqual(log.read_bytes(), unchanged_log)
+
+    def test_existing_codebook_is_preserved(self):
+        with tempfile.TemporaryDirectory() as directory:
+            book_path = Path(directory) / "book.json"
+            original = b"existing codebook\n"
+            book_path.write_bytes(original)
+            result = self.run_cli("book", "-", "--output", book_path, input_text=jsonl(self.messages))
+            self.assertNotEqual(result.returncode, 0)
+            self.assertEqual(result.stdout, "")
+            self.assertEqual(book_path.read_bytes(), original)
+
+    def test_unknown_message_and_missing_book_prevent_outputs(self):
+        with tempfile.TemporaryDirectory() as directory:
+            book_path = Path(directory) / "book.json"
+            book_path.write_text(json.dumps(make_codebook(self.messages)), encoding="utf-8")
+            log = Path(directory) / "reviewer.jsonl"
+            unknown = [*self.messages, {**self.messages[0], "id": "m3", "h1": "U Unknown"}]
+            for extra, dialogue in ((["--codebook", book_path], unknown), ([], self.messages)):
+                result = self.run_cli(
+                    "encode", "-", "--format", "G2", *extra,
+                    "--reviewer-log", log, input_text=jsonl(dialogue),
+                )
+                self.assertNotEqual(result.returncode, 0)
+                self.assertEqual(result.stdout, "")
+                self.assertFalse(log.exists())
+
+    def test_late_invalid_reference_prevents_partial_reviewer_output(self):
+        book = make_codebook(self.messages)
+        stream, _ = encode_dictionary(self.messages, book)
+        stream[-1] = {**stream[-1], "ref": -1}
+        with tempfile.TemporaryDirectory() as directory:
+            book_path = Path(directory) / "book.json"
+            book_path.write_text(json.dumps(book), encoding="utf-8")
+            result = self.run_cli("decode", "-", "--codebook", book_path, input_text=jsonl(stream))
+            self.assertNotEqual(result.returncode, 0)
+            self.assertEqual(result.stdout, "")
 
 
 if __name__ == "__main__":
