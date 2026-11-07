@@ -4,6 +4,8 @@ Game mode renders recorded or synthetic H1 dialogue as codes for spectators. Rev
 
 G2 uses a shared codebook of exact messages and reduces token counts when dialogue repeats. G1 uses tokenizer IDs and supports messages directly from their text. Both formats have public decoders. Players with the corresponding vocabulary or codebook can recover the messages.
 
+The [one-off codec benchmark](oneoff-measurements.md) also tests 35 reversible codec/rendering combinations on unique messages, including longer handoffs. None beat H1 in that experiment.
+
 ## G2 shared codebook
 
 Use G2 for games with a reusable dialogue vocabulary. The `book` command derives it from any valid dialogue, preserving the first occurrence of each exact H1 string. The codebook lives with the game host and reviewers. Spectators receive a stream header binding the codebook's SHA-256 hash, followed by records containing message IDs, routes, and integer references.

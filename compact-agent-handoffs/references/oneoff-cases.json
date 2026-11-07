@@ -1,0 +1,50 @@
+[
+  {
+    "id": "fresh-tiny",
+    "h1": "U Waiting"
+  },
+  {
+    "id": "fresh-delegation",
+    "h1": "T Inspect lib/billing/proration.ts for rounding at month boundaries\nS ro\nC Report the smallest input that produces an incorrect total"
+  },
+  {
+    "id": "fresh-literal-error",
+    "h1": "B tools/archive/upload.py:206 returned \"tls: bad certificate | peer=files.internal; attempt=3\"\nN Check which certificate bundle the scheduled job actually loads"
+  },
+  {
+    "id": "fresh-numeric-result",
+    "h1": "D Rebuilt the thumbnail index for 43 images\nC 41 hashes match the source manifest; image-017 and image-032 differ"
+  },
+  {
+    "id": "fresh-unicode",
+    "h1": "Q Should the displayed title preserve \"naïve — 東京 — 🎒\" when the export filename uses an ASCII slug?"
+  },
+  {
+    "id": "fresh-uncertainty",
+    "h1": "U Possible connection leak in the report worker; 15 of 400 requests retained a socket for more than 90 seconds\nN Capture allocation traces before attributing the leak to the retry branch"
+  },
+  {
+    "id": "fresh-attribution",
+    "h1": "U Agent /root/search reported an incorrect sort order in src/catalog/rank.ts:58; I have inspected the comparator but have not reproduced the reported ordering"
+  },
+  {
+    "id": "fresh-check-limit",
+    "h1": "D Updated docs/import-format.md with the tab-separated example\nC Four examples parse successfully; the archived importer binary remains unavailable"
+  },
+  {
+    "id": "fresh-scope",
+    "h1": "T Compare migrations/014_customer_aliases.sql with the staging schema snapshot\nS Inspect schema definitions only; customer records are outside this task\nN Return any column or index differences with their owning migration"
+  },
+  {
+    "id": "fresh-owner-blocker",
+    "h1": "B The build directory contains a lock owned by PID 31409 on host cedar-02; that process is still active\nQ Which build owns the lock, and should this job wait for its completion?"
+  },
+  {
+    "id": "fresh-long-export",
+    "h1": "D Corrected cursor advancement in src/accounting/export.ts:143 so the next page starts after the final invoice emitted, including invoices excluded by the regional filter.\nC Exported a fixture containing 192 invoices across seven customers and three currencies. The result contains the expected 167 eligible invoice IDs, each once, with a total of 284 line items. Verified an empty first page, a page containing only excluded invoices, two invoices with the same creation timestamp, and a final page exactly equal to the configured size. Amounts retain their original minor-unit values, and the output keeps separate currency totals. The fixture includes a refunded invoice with a negative adjustment, an invoice without a postal code, and a customer name containing an apostrophe.\nU The test covers the local storage adapter. The remote adapter's continuation-token behavior remains unverified because its sandbox endpoint is unavailable.\nN Ask the storage owner to run the same fixture against that adapter and compare the ordered invoice IDs before approving the remote export path."
+  },
+  {
+    "id": "fresh-long-migration",
+    "h1": "U Reviewed the proposed warehouse migration against the supplied schema dump. The new shipment_attempts table references delivery_jobs by UUID and adds a unique constraint on job_id plus attempt_number. The application currently allocates attempt numbers before opening its transaction, which could produce a duplicate during concurrent retries. A uniqueness error would preserve the database constraint, but the caller's recovery behavior remains unclear.\nC The supplied dump contains 28 tables and 146 indexes. The proposed statement renames one existing status column, creates two foreign keys, and builds a partial index for attempts awaiting confirmation. Its predicate excludes rows with a null confirmation state, while the backfill leaves that state null for older deliveries. I found no statement that populates those older values. The down migration also removes the renamed column before copying its data back.\nS Read-only review of the migration and dump; no database commands executed.\nN Confirm how historical attempts should appear in the pending queue, move number allocation into the transactional design, and revise the rollback ordering before requesting a migration run."
+  }
+]

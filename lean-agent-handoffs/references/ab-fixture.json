@@ -1,0 +1,117 @@
+{
+  "source_commit": "8ba73cbac6c924535a8ae427515eccb1beaf3555",
+  "sources": {
+    "game.py": "#!/usr/bin/env python3\n\"\"\"Render H1 game dialogue with token IDs or a shared book and reviewer logs.\"\"\"\n\nimport argparse\nimport hashlib\nimport json\nimport os\nimport sys\nimport tempfile\nfrom importlib.metadata import version\nfrom pathlib import Path\n\nimport tiktoken\n\nfrom decode import decode\n\n\nENCODINGS = (\"o200k_base\", \"cl100k_base\")\nTOKENIZER_VERSION = version(\"tiktoken\")\nINPUT_FIELDS = {\"id\", \"from\", \"to\", \"h1\"}\nEVENT_FIELDS = {\"format\", \"tokenizer\", \"encoding\", \"id\", \"from\", \"to\", \"tokens\"}\n\n\ndef json_line(record: dict) -> str:\n    return json.dumps(record, ensure_ascii=False, separators=(\",\", \":\")) + \"\\n\"\n\n\ndef validate_record(record: dict, fields: set) -> None:\n    if not isinstance(record, dict) or set(record) != fields:\n        raise ValueError(f\"record must contain exactly {sorted(fields)}\")\n    for name in fields - {\"tokens\", \"ref\"}:\n        value = record[name]\n        if not isinstance(value, str) or not value.strip():\n            raise ValueError(f\"{name} must be a nonempty string\")\n        value.encode(\"utf-8\", errors=\"strict\")\n\n\ndef validate_source(record: dict) -> None:\n    validate_record(record, INPUT_FIELDS)\n    decode(record[\"h1\"])\n\n\ndef validate_unique_ids(records: list) -> None:\n    ids = [record[\"id\"] for record in records]\n    if len(set(ids)) != len(ids):\n        raise ValueError(\"duplicate message IDs in dialogue\")\n\n\ndef encode_event(record: dict, encoding_name: str) -> dict:\n    validate_source(record)\n    if encoding_name not in ENCODINGS:\n        raise ValueError(\"unsupported encoding\")\n    encoding = tiktoken.get_encoding(encoding_name)\n    return {\n        \"format\": \"G1\",\n        \"tokenizer\": TOKENIZER_VERSION,\n        \"encoding\": encoding_name,\n        \"id\": record[\"id\"],\n        \"from\": record[\"from\"],\n        \"to\": record[\"to\"],\n        \"tokens\": encoding.encode_ordinary(record[\"h1\"]),\n    }\n\n\ndef decode_event(event: dict) -> dict:\n    validate_record(event, EVENT_FIELDS)\n    if event[\"format\"] != \"G1\" or event[\"tokenizer\"] != TOKENIZER_VERSION:\n        raise ValueError(f\"expected G1 with tiktoken {TOKENIZER_VERSION}\")\n    if event[\"encoding\"] not in ENCODINGS:\n        raise ValueError(\"unsupported encoding\")\n    encoding = tiktoken.get_encoding(event[\"encoding\"])\n    token_ids = event[\"tokens\"]\n    if not isinstance(token_ids, list) or not token_ids:\n        raise ValueError(\"tokens must be a nonempty list of integer IDs\")\n    if any(type(token) is not int or token < 0 or token >= encoding.n_vocab for token in token_ids):\n        raise ValueError(\"tokens contain an invalid integer ID\")\n    try:\n        h1 = encoding.decode(token_ids, errors=\"strict\")\n    except (KeyError, UnicodeError) as error:\n        raise ValueError(\"tokens contain an unknown ID or invalid UTF-8\") from error\n    if encoding.encode_ordinary(h1) != token_ids:\n        raise ValueError(\"tokens must be the ordinary canonical encoding of the H1 text\")\n    expanded = decode(h1)\n    return {\n        \"format\": \"G1-review\",\n        \"tokenizer\": event[\"tokenizer\"],\n        \"encoding\": event[\"encoding\"],\n        \"id\": event[\"id\"],\n        \"from\": event[\"from\"],\n        \"to\": event[\"to\"],\n        \"h1\": h1,\n        \"decoded\": expanded,\n    }\n\n\ndef make_codebook(records: list) -> dict:\n    if not records:\n        raise ValueError(\"empty dialogue\")\n    for record in records:\n        validate_source(record)\n    validate_unique_ids(records)\n    return {\"format\": \"G2-book\", \"messages\": list(dict.fromkeys(record[\"h1\"] for record in records))}\n\n\ndef validate_codebook(book: dict) -> None:\n    if not isinstance(book, dict) or set(book) != {\"format\", \"messages\"} or book[\"format\"] != \"G2-book\":\n        raise ValueError(\"expected a G2-book with format and messages\")\n    messages = book[\"messages\"]\n    if not isinstance(messages, list) or not messages:\n        raise ValueError(\"codebook messages must be a nonempty list\")\n    for message in messages:\n        if not isinstance(message, str):\n            raise ValueError(\"codebook messages must be H1 strings\")\n        message.encode(\"utf-8\", errors=\"strict\")\n        decode(message)\n    if len(set(messages)) != len(messages):\n        raise ValueError(\"duplicate codebook messages\")\n\n\ndef codebook_hash(book: dict) -> str:\n    canonical = json.dumps(book, ensure_ascii=False, sort_keys=True, separators=(\",\", \":\"))\n    return hashlib.sha256(canonical.encode(\"utf-8\")).hexdigest()\n\n\ndef encode_dictionary(records: list, book: dict) -> tuple:\n    validate_codebook(book)\n    refs = {message: index for index, message in enumerate(book[\"messages\"])}\n    stream = [{\"format\": \"G2\", \"book\": codebook_hash(book)}]\n    for record in records:\n        validate_source(record)\n        if record[\"h1\"] not in refs:\n            raise ValueError(f\"message {record['id']} is absent from codebook\")\n        stream.append({\n            \"id\": record[\"id\"],\n            \"from\": record[\"from\"],\n            \"to\": record[\"to\"],\n            \"ref\": refs[record[\"h1\"]],\n        })\n    reviews = decode_dictionary(stream, book)\n    return stream, reviews\n\n\ndef decode_dictionary(stream: list, book: dict) -> list:\n    validate_codebook(book)\n    fingerprint = codebook_hash(book)\n    if not stream or stream[0] != {\"format\": \"G2\", \"book\": fingerprint}:\n        raise ValueError(\"G2 header must match the supplied codebook\")\n    if len(stream) == 1:\n        raise ValueError(\"empty G2 dialogue\")\n    reviews = []\n    for event in stream[1:]:\n        validate_record(event, {\"id\", \"from\", \"to\", \"ref\"})\n        ref = event[\"ref\"]\n        if type(ref) is not int or ref < 0 or ref >= len(book[\"messages\"]):\n            raise ValueError(\"invalid G2 message reference\")\n        h1 = book[\"messages\"][ref]\n        reviews.append({\n            \"format\": \"G2-review\",\n            \"book\": fingerprint,\n            \"id\": event[\"id\"],\n            \"from\": event[\"from\"],\n            \"to\": event[\"to\"],\n            \"ref\": ref,\n            \"h1\": h1,\n            \"decoded\": decode(h1),\n        })\n    validate_unique_ids(reviews)\n    return reviews\n\n\ndef read_records(source: str) -> list:\n    text = sys.stdin.read() if source == \"-\" else Path(source).read_text(encoding=\"utf-8\")\n    lines = text.split(\"\\n\")\n    if lines[-1] == \"\":\n        lines.pop()\n    if not lines:\n        raise ValueError(\"empty dialogue\")\n    records = []\n    for number, line in enumerate(lines, start=1):\n        try:\n            records.append(json.loads(line))\n        except json.JSONDecodeError as error:\n            raise ValueError(f\"line {number}: invalid JSON\") from error\n    return records\n\n\ndef write_new_log(path: Path, content: str) -> None:\n    \"\"\"Publish a complete log while preserving any existing destination.\"\"\"\n    staged = tempfile.NamedTemporaryFile(mode=\"w\", encoding=\"utf-8\", dir=path.parent, delete=False)\n    staged_path = Path(staged.name)\n    try:\n        with staged:\n            staged.write(content)\n            staged.flush()\n            os.fsync(staged.fileno())\n        os.link(staged_path, path)\n    finally:\n        staged_path.unlink()\n\n\ndef main() -> None:\n    parser = argparse.ArgumentParser(description=__doc__)\n    commands = parser.add_subparsers(dest=\"command\", required=True)\n    encoder = commands.add_parser(\"encode\", help=\"write reviewer log, then emit spectator JSONL\")\n    encoder.add_argument(\"input\", help=\"UTF-8 dialogue JSONL file, or - for stdin\")\n    encoder.add_argument(\"--encoding\", choices=ENCODINGS, default=\"o200k_base\")\n    encoder.add_argument(\"--format\", choices=(\"G1\", \"G2\"), default=\"G1\")\n    encoder.add_argument(\"--codebook\", type=Path)\n    encoder.add_argument(\"--reviewer-log\", required=True, type=Path)\n    decoder = commands.add_parser(\"decode\", help=\"regenerate reviewer JSONL from spectator JSONL\")\n    decoder.add_argument(\"input\", help=\"UTF-8 spectator JSONL file, or - for stdin\")\n    decoder.add_argument(\"--codebook\", type=Path)\n    builder = commands.add_parser(\"book\", help=\"create a reusable G2 codebook from H1 dialogue\")\n    builder.add_argument(\"input\", help=\"UTF-8 dialogue JSONL file, or - for stdin\")\n    builder.add_argument(\"--output\", required=True, type=Path)\n    args = parser.parse_args()\n    try:\n        records = read_records(args.input)\n        if args.command == \"book\":\n            write_new_log(args.output, json_line(make_codebook(records)))\n            return\n        book = None\n        if args.codebook is not None:\n            book = json.loads(args.codebook.read_text(encoding=\"utf-8\"))\n        if args.command == \"encode\":\n            if args.format == \"G2\":\n                events, reviews = encode_dictionary(records, book)\n            else:\n                if book is not None:\n                    raise ValueError(\"select --format G2 when using a codebook\")\n                events = [encode_event(record, args.encoding) for record in records]\n                reviews = [decode_event(event) for event in events]\n            if [review[\"h1\"] for review in reviews] != [record[\"h1\"] for record in records]:\n                raise ValueError(\"game encoding failed to preserve input H1\")\n        else:\n            events = records\n            if isinstance(events[0], dict) and events[0].get(\"format\") == \"G2\":\n                reviews = decode_dictionary(events, book)\n            else:\n                if book is not None:\n                    raise ValueError(\"G2 codebook supplied for a different stream format\")\n                reviews = [decode_event(event) for event in events]\n        validate_unique_ids(reviews)\n        review_log = \"\".join(json_line(review) for review in reviews)\n        if args.command == \"encode\":\n            write_new_log(args.reviewer_log, review_log)\n            output = \"\".join(json_line(event) for event in events)\n        else:\n            output = review_log\n        sys.stdout.write(output)\n    except (OSError, UnicodeError, ValueError) as error:\n        parser.exit(2, f\"game: {error}\\n\")\n\n\nif __name__ == \"__main__\":\n    main()\n",
+    "decode.py": "#!/usr/bin/env python3\n\"\"\"Expand H1 handoffs into labeled text using only the standard library.\"\"\"\n\nimport argparse\nimport sys\nfrom pathlib import Path\n\n\nFIELDS = {\n    \"T\": \"Task\",\n    \"U\": \"Update\",\n    \"D\": \"Done\",\n    \"B\": \"Blocked\",\n    \"Q\": \"Ask\",\n    \"S\": \"Scope\",\n    \"C\": \"Check\",\n    \"N\": \"Next\",\n}\n\n\ndef decode(message: str) -> str:\n    \"\"\"Validate the entire message before returning its expanded fields.\"\"\"\n    lines = message.split(\"\\n\")\n    if lines[-1] == \"\":\n        lines.pop()\n    if not lines:\n        raise ValueError(\"empty H1 message\")\n\n    decoded = []\n    for number, line in enumerate(lines, start=1):\n        code, separator, content = line.partition(\" \")\n        if code not in FIELDS or not separator or not content.strip():\n            raise ValueError(f\"line {number}: expected a known H1 code, a space, and text\")\n        if code == \"S\" and content == \"ro\":\n            content = \"Read only.\"\n        decoded.append(f\"{FIELDS[code]}: {content}\")\n    return \"\\n\".join(decoded)\n\n\ndef main() -> None:\n    parser = argparse.ArgumentParser(description=__doc__)\n    parser.add_argument(\"file\", nargs=\"?\", default=\"-\", help=\"UTF-8 H1 file, or - for stdin\")\n    args = parser.parse_args()\n    try:\n        message = sys.stdin.read() if args.file == \"-\" else Path(args.file).read_text(encoding=\"utf-8\")\n        expanded = decode(message)\n    except (OSError, UnicodeError, ValueError) as error:\n        parser.exit(2, f\"decode: {error}\\n\")\n    print(expanded)\n\n\nif __name__ == \"__main__\":\n    main()\n"
+  },
+  "cases": [
+    {
+      "id": "publication",
+      "files": [
+        "game.py"
+      ],
+      "nodes": {
+        "game.py": [
+          "write_new_log"
+        ]
+      },
+      "question": "Assess write_new_log only. Can it overwrite an existing destination? Can its destination first become visible with partially written content? Does it attempt temporary-file cleanup after a failed link?",
+      "expected": {
+        "overwrites_existing": false,
+        "publishes_partial_destination": false,
+        "attempts_cleanup_after_link_failure": true
+      }
+    },
+    {
+      "id": "hash-order",
+      "files": [
+        "game.py"
+      ],
+      "nodes": {
+        "game.py": [
+          "codebook_hash"
+        ]
+      },
+      "question": "Assume valid books containing identical values. Does reordering the object's keys preserve codebook_hash? Does reversing a list containing two distinct messages preserve it?",
+      "expected": {
+        "object_key_order_preserves_hash": true,
+        "reversing_distinct_messages_preserves_hash": false
+      }
+    },
+    {
+      "id": "record-types",
+      "files": [
+        "game.py"
+      ],
+      "nodes": {
+        "game.py": [
+          "validate_record"
+        ]
+      },
+      "question": "For validate_record with the specified expected field set, is a Boolean actor name accepted? Is a lone-surrogate string accepted? Must ref be a string when ref is an expected field? Is an unexpected field accepted?",
+      "expected": {
+        "boolean_actor_accepted": false,
+        "lone_surrogate_accepted": false,
+        "ref_must_be_string": false,
+        "unexpected_field_accepted": false
+      }
+    },
+    {
+      "id": "jsonl-boundaries",
+      "files": [
+        "game.py"
+      ],
+      "nodes": {
+        "game.py": [
+          "read_records"
+        ]
+      },
+      "question": "Assess read_records on valid UTF-8 JSONL. Does a literal U+2028 inside a JSON string split a record? Is an intervening blank line accepted? Is one trailing LF accepted?",
+      "expected": {
+        "u2028_splits_record": false,
+        "blank_line_accepted": false,
+        "one_trailing_lf_accepted": true
+      }
+    },
+    {
+      "id": "book-validation",
+      "files": [
+        "game.py",
+        "decode.py"
+      ],
+      "nodes": {
+        "game.py": [
+          "validate_codebook"
+        ],
+        "decode.py": [
+          "FIELDS",
+          "decode"
+        ]
+      },
+      "question": "Assess validate_codebook. Are duplicate exact H1 strings accepted? Is an ordinary prose string without an H1 field code accepted? Is an empty message list accepted? Is the single message S ro accepted?",
+      "expected": {
+        "duplicate_messages_accepted": false,
+        "plain_prose_accepted": false,
+        "empty_message_list_accepted": false,
+        "scope_macro_accepted": true
+      }
+    },
+    {
+      "id": "id-equality",
+      "files": [
+        "game.py"
+      ],
+      "nodes": {
+        "game.py": [
+          "validate_unique_ids"
+        ]
+      },
+      "question": "Assume records have string IDs. Does validate_unique_ids accept two equal IDs? Does it accept differently cased IDs? Does it normalize surrounding whitespace before comparing?",
+      "expected": {
+        "equal_ids_accepted": false,
+        "different_case_ids_accepted": true,
+        "normalizes_whitespace": false
+      }
+    }
+  ]
+}

@@ -1,0 +1,4 @@
+interface:
+  display_name: "Lean Agent Handoffs"
+  short_description: "Batch related work and cut delegated context"
+  default_prompt: "Use $lean-agent-handoffs to reduce this task’s agent communication and verify the token savings."

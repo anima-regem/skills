@@ -4,6 +4,7 @@ Reusable skills for focused, practical work.
 
 | Skill | Purpose |
 | --- | --- |
+| [Lean Agent Handoffs](lean-agent-handoffs/SKILL.md) | Batch related work and isolate task context, with recorded A/B usage and readable reviewer evidence. |
 | [Compact Agent Handoffs](compact-agent-handoffs/SKILL.md) | Use H1 handoffs or shared-codebook spectator games with decoded reviewer logs and reproducible benchmarks. |
 | [Unslop UI Design](unslop-ui-design/SKILL.md) | Design distinctive, polished interfaces where every element earns its place. Includes an audit worksheet and practical examples. |
 

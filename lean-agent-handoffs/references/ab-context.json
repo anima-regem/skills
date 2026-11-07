@@ -1,0 +1,48 @@
+[
+  {
+    "case_id": "publication",
+    "arm": "inherited",
+    "fork_turns": "all",
+    "dispatch": "Controlled usage check. Read /tmp/lean-agent-ab.uqTlWC/packets/normal-0.txt with one tool call. Complete only that packet. Return its requested JSON object. Do not read other files or use more tools.",
+    "raw_answer": "{\"overwrites_existing\":false,\"publishes_partial_destination\":false,\"attempts_cleanup_after_link_failure\":true}",
+    "model_requests": 2,
+    "tool_calls": 1,
+    "runtime_usage": {
+      "input_tokens": 470047,
+      "cached_input_tokens": 466432,
+      "output_tokens": 90,
+      "reasoning_output_tokens": 10,
+      "total_tokens": 470137
+    },
+    "provenance": {
+      "native_session_id": "01a1b55f-f24e-7600-954f-cb2803010545",
+      "usage_record_timestamp_utc": "2026-11-07T09:38:58.008Z",
+      "usage_record": "token_count.info.total_token_usage",
+      "model": "gpt-6.1-sol",
+      "reasoning_effort": "ultra"
+    }
+  },
+  {
+    "case_id": "publication",
+    "arm": "isolated",
+    "fork_turns": "none",
+    "dispatch": "Controlled usage check. Read /tmp/lean-agent-ab.uqTlWC/packets/lean-0.txt with one tool call. Complete only that packet. Return its requested JSON object. Do not read other files or use more tools.",
+    "raw_answer": "{\"overwrites_existing\":false,\"publishes_partial_destination\":false,\"attempts_cleanup_after_link_failure\":true}",
+    "model_requests": 2,
+    "tool_calls": 1,
+    "runtime_usage": {
+      "input_tokens": 62492,
+      "cached_input_tokens": 61824,
+      "output_tokens": 107,
+      "reasoning_output_tokens": 33,
+      "total_tokens": 62599
+    },
+    "provenance": {
+      "native_session_id": "01a1b560-00ab-7682-8009-9c0d5a6a09cd",
+      "usage_record_timestamp_utc": "2026-11-07T09:38:57.817Z",
+      "usage_record": "token_count.info.total_token_usage",
+      "model": "gpt-6.1-sol",
+      "reasoning_effort": "ultra"
+    }
+  }
+]

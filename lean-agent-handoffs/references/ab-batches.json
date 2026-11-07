@@ -1,0 +1,54 @@
+[
+  {
+    "case_id": "all",
+    "arm": "lean",
+    "dispatch": "Read /tmp/lean-agent-ab.uqTlWC/packets/lean-batch.txt with one tool call. Complete only that packet. Return the requested JSON object. Do not read other files or use more tools.",
+    "raw_answer": "{\n  \"publication\": {\n    \"overwrites_existing\": false,\n    \"publishes_partial_destination\": false,\n    \"attempts_cleanup_after_link_failure\": true\n  },\n  \"hash-order\": {\n    \"object_key_order_preserves_hash\": true,\n    \"reversing_distinct_messages_preserves_hash\": false\n  },\n  \"record-types\": {\n    \"boolean_actor_accepted\": false,\n    \"lone_surrogate_accepted\": false,\n    \"ref_must_be_string\": false,\n    \"unexpected_field_accepted\": false\n  },\n  \"jsonl-boundaries\": {\n    \"u2028_splits_record\": false,\n    \"blank_line_accepted\": false,\n    \"one_trailing_lf_accepted\": true\n  },\n  \"book-validation\": {\n    \"duplicate_messages_accepted\": false,\n    \"plain_prose_accepted\": false,\n    \"empty_message_list_accepted\": false,\n    \"scope_macro_accepted\": true\n  },\n  \"id-equality\": {\n    \"equal_ids_accepted\": false,\n    \"different_case_ids_accepted\": true,\n    \"normalizes_whitespace\": false\n  }\n}",
+    "extra_context_tokens": {
+      "o200k_base": 0,
+      "cl100k_base": 0
+    },
+    "runtime_usage": {
+      "input_tokens": 63670,
+      "cached_input_tokens": 61824,
+      "output_tokens": 380,
+      "reasoning_output_tokens": 87,
+      "total_tokens": 64050
+    },
+    "model_requests": 2,
+    "tool_calls": 1,
+    "provenance": {
+      "native_session_id": "01a1b55c-d499-7f91-8c4a-dcc9d0c1d6b9",
+      "usage_record_timestamp_utc": "2026-11-07T09:35:36.405Z",
+      "usage_record": "token_count.info.total_token_usage",
+      "model": "gpt-6.1-sol",
+      "reasoning_effort": "ultra"
+    }
+  },
+  {
+    "case_id": "all",
+    "arm": "normal",
+    "dispatch": "Read /tmp/lean-agent-ab.uqTlWC/packets/normal-batch.txt with one tool call. Complete only that packet. Return the requested JSON object. Do not read other files or use more tools.",
+    "raw_answer": "{\"publication\":{\"overwrites_existing\":false,\"publishes_partial_destination\":false,\"attempts_cleanup_after_link_failure\":true},\"hash-order\":{\"object_key_order_preserves_hash\":true,\"reversing_distinct_messages_preserves_hash\":false},\"record-types\":{\"boolean_actor_accepted\":false,\"lone_surrogate_accepted\":false,\"ref_must_be_string\":false,\"unexpected_field_accepted\":false},\"jsonl-boundaries\":{\"u2028_splits_record\":false,\"blank_line_accepted\":false,\"one_trailing_lf_accepted\":true},\"book-validation\":{\"duplicate_messages_accepted\":false,\"plain_prose_accepted\":false,\"empty_message_list_accepted\":false,\"scope_macro_accepted\":true},\"id-equality\":{\"equal_ids_accepted\":false,\"different_case_ids_accepted\":true,\"normalizes_whitespace\":false}}",
+    "extra_context_tokens": {
+      "o200k_base": 0,
+      "cl100k_base": 0
+    },
+    "runtime_usage": {
+      "input_tokens": 65863,
+      "cached_input_tokens": 61824,
+      "output_tokens": 321,
+      "reasoning_output_tokens": 97,
+      "total_tokens": 66184
+    },
+    "model_requests": 2,
+    "tool_calls": 1,
+    "provenance": {
+      "native_session_id": "01a1b55c-c5b3-7473-b410-e1d8523f9213",
+      "usage_record_timestamp_utc": "2026-11-07T09:35:31.505Z",
+      "usage_record": "token_count.info.total_token_usage",
+      "model": "gpt-6.1-sol",
+      "reasoning_effort": "ultra"
+    }
+  }
+]
