@@ -1,75 +1,42 @@
 # Token measurements
 
-The paired handoffs cover delegation, progress, partial work, a blocker, a clarification, an exact error, completion, and a minimal update. The same facts are present in both sets. Each blank line separates two messages.
+H1 was compared with the previous skill at commit `9a9afcdd17e8d09c5f321b2b3ca5c0b32b33b3bd`. The [fixture](benchmark.json) contains its exact skill text, the original eight handoffs, eight additional handoffs authored independently using the previous skill, compact H1 versions, and expected decoder output.
 
-With `o200k_base`, the eight messages went from 163 to 130 tokens, a 20.2% reduction. A single 286-token read of `SKILL.md` is offset after about 70 handoffs at that average saving. Tool envelopes, prompt caching, and messages skipped by following the skill are outside this estimate.
+All sixteen compact versions were authored to retain the original facts, including restrictions, failed or skipped checks, uncertainty, attribution, and exact error strings. An independent review checked those facts. The decoder expands the codes and the `ro` macro. Shortened prose remains a summary of the original wording.
 
-## Concise English
+## Message tokens
 
-```text
-Audit only src/auth.ts for redirect loops. Report file and line numbers for any findings. Do not edit files.
+Each message is tokenized independently with `tiktoken` 0.12.0. All H1 characters, spaces, and newlines count. Every fixture uses H1, including tiny updates with zero savings.
 
-I reproduced the bug on Safari 18. Chrome 131 did not reproduce it. I’ll check the redirect branch next.
+| Encoding and set | Previous skill | Expanded H1 | H1 | Reduction versus previous |
+| --- | --- | --- | --- | --- |
+| o200k_base, original 8 | 130 | 128 | 114 | 12.3% |
+| o200k_base, additional 8 | 192 | 169 | 154 | 19.8% |
+| o200k_base, all 16 | 322 | 297 | 268 | 16.8% |
+| cl100k_base, original 8 | 131 | 128 | 114 | 13.0% |
+| cl100k_base, additional 8 | 193 | 169 | 154 | 20.2% |
+| cl100k_base, all 16 | 324 | 297 | 268 | 17.3% |
 
-I finished the parser review and found no issues. The worker review is pending because fixtures are missing.
+The expanded column isolates the effect of coding from prose edits. With `o200k_base`, shorter wording takes the total from 322 to 297 tokens. Replacing expanded field names and the read-only scope with H1 takes it from 297 to 268, a further 9.8% reduction. The combined improvement over the previous handoffs is 16.8%.
 
-The staging test is blocked by HTTP 401. Please send the name of the staging credential so I can retry.
+## Instruction costs
 
-Should an empty array mean no results or an invalid request? This determines the response code.
+The shared `SKILL.md` contains the entire H1 vocabulary. Recipients that already have it can read the messages directly. Uninitialized recipients use ordinary prose until the meanings are shared. The reviewer decoder and measurement references are loaded on demand.
 
-The error at src/cache.ts:89 is exactly "miss | busy; retry". It happens after two failed retries.
+| Encoding | Previous instructions | H1 instructions | Previous instructions plus 16 messages | H1 instructions plus 16 messages |
+| --- | --- | --- | --- | --- |
+| o200k_base | 286 | 289 | 608 | 557 |
+| cl100k_base | 284 | 286 | 608 | 554 |
 
-I added the missing return in src/auth.ts:74. All 12 auth tests passed. I did not run the full suite.
+These totals assume one full instruction load per variant. Each additional participant loading instructions adds another setup cost. At the fixture's average saving, the extra 3 tokens for H1 over the previous skill are offset within one handoff with `o200k_base`. Adding the entire H1 skill to a context that already holds the previous skill takes about 86 comparable handoffs to offset its 289 additional instruction tokens.
 
-Already merged.
-```
-
-## Compact handoffs
-
-```text
-Task: Audit src/auth.ts only for redirect loops. Read only. Report findings with file:line.
-
-Safari 18: reproduced. Chrome 131: no repro. Next: check redirect branch.
-
-Parser reviewed, no issues. Worker review pending missing fixtures.
-
-Blocked: staging test, HTTP 401. Need staging credential name to retry.
-
-Ask: Empty array means no results or invalid request? Determines response code.
-
-src/cache.ts:89 error "miss | busy; retry" after 2 failed retries.
-
-Done: Added missing return at src/auth.ts:74. Auth tests: 12 passed. Full suite: not run.
-
-Already merged.
-```
+These are token counts for authored examples. Tool envelopes, conversation replay, caching, retries, additional negotiation, and decoder tool calls are outside the totals. Actual costs depend on the runtime and model. A short message may gain nothing from H1.
 
 ## Reproduce
 
-Run from the repository root. The tokenizer measures each message separately, then estimates how many handoffs cover one full read of `SKILL.md` at the observed average saving.
+Run from the repository root. The benchmark verifies all sixteen expected decoder outputs before reporting counts. The decoder itself uses the Python standard library.
 
 ```bash
-uv run --isolated --with tiktoken==0.12.0 python - <<'PY'
-import re
-from pathlib import Path
-
-import tiktoken
-
-skill = Path("compact-agent-handoffs")
-fixture = (skill / "references/token-measurements.md").read_text(encoding="utf-8")
-encoding = tiktoken.get_encoding("o200k_base")
-baseline, compact = [
-    [len(encoding.encode_ordinary(message)) for message in block.split("\n\n")]
-    for block in re.findall(r"^```text\n(.+?)\n```$", fixture, flags=re.M | re.S)
-]
-assert len(baseline) == len(compact) == 8
-before, after = sum(baseline), sum(compact)
-setup = len(encoding.encode_ordinary((skill / "SKILL.md").read_text(encoding="utf-8")))
-saved = before - after
-print(f"Per message: {list(zip(baseline, compact))}")
-print(f"Payload: {before} → {after} tokens ({saved / before:.1%} fewer)")
-print(f"One full read: {setup} tokens")
-if saved > 0:
-    print(f"Net savings after one read: {setup * len(baseline) // saved + 1} handoffs")
-PY
+uv run --isolated --with tiktoken==0.12.0 python compact-agent-handoffs/scripts/benchmark.py --encoding o200k_base
+uv run --isolated --with tiktoken==0.12.0 python compact-agent-handoffs/scripts/benchmark.py --encoding cl100k_base
 ```

@@ -1,0 +1,118 @@
+{
+  "baseline_commit": "9a9afcdd17e8d09c5f321b2b3ca5c0b32b33b3bd",
+  "baseline_skill": "---\nname: compact-agent-handoffs\ndescription: Reduce message tokens in parent, peer, and child agent handoffs during multi-agent work.\n---\n\n# Compact Agent Handoffs\n\nUse the shortest clear message. Start longer handoffs with `Task`, `Update`, `Done`, `Blocked`, or `Ask`. Add `Scope`, `Check`, or `Next` as needed. Recipients can reply in ordinary language.\n\n```text\nDone: Fixed redirect loop at src/auth.ts:74.\nCheck: 12 auth tests passed. Full suite not run.\n```\n\n- Give new recipients the goal, context, and limits. Then send changed facts. Keep exact identifiers, uncertainty, failed or skipped checks, and remaining work that affects the next action. Link evidence the recipient can access.\n- Batch related updates when timing permits. Skip routine acknowledgments. Use the platform's delivered completion as the result when it reaches the intended recipient. Attribute any findings you relay.\n- Use normal agent channels and reachable IDs or canonical paths. In Codex, `spawn_agent` takes the initial task, `send_message` delivers updates, and `followup_task` wakes idle non-root agents. Relay through a reachable parent if needed.\n- Keep messages readable in the transcript. Expand ambiguous requests and use plain language for approvals and decisions needing human review.\n\nSee [token measurements](references/token-measurements.md) when evaluating savings.\n",
+  "cases": [
+    {
+      "id": "original-audit",
+      "set": "original",
+      "current": "Task: Audit src/auth.ts only for redirect loops. Read only. Report findings with file:line.",
+      "h1": "T src/auth.ts only audit redirect loops\nS ro\nC findings file:line",
+      "decoded": "Task: src/auth.ts only audit redirect loops\nScope: Read only.\nCheck: findings file:line"
+    },
+    {
+      "id": "original-progress",
+      "set": "original",
+      "current": "Safari 18: reproduced. Chrome 131: no repro. Next: check redirect branch.",
+      "h1": "U Safari 18 reproduced; Chrome 131 no repro\nN check redirect branch",
+      "decoded": "Update: Safari 18 reproduced; Chrome 131 no repro\nNext: check redirect branch"
+    },
+    {
+      "id": "original-partial",
+      "set": "original",
+      "current": "Parser reviewed, no issues. Worker review pending missing fixtures.",
+      "h1": "U Parser reviewed, no issues; worker review pending missing fixtures",
+      "decoded": "Update: Parser reviewed, no issues; worker review pending missing fixtures"
+    },
+    {
+      "id": "original-blocked",
+      "set": "original",
+      "current": "Blocked: staging test, HTTP 401. Need staging credential name to retry.",
+      "h1": "B staging test HTTP 401\nQ staging credential name to retry",
+      "decoded": "Blocked: staging test HTTP 401\nAsk: staging credential name to retry"
+    },
+    {
+      "id": "original-question",
+      "set": "original",
+      "current": "Ask: Empty array means no results or invalid request? Determines response code.",
+      "h1": "Q Empty array means no results or invalid request? Determines response code",
+      "decoded": "Ask: Empty array means no results or invalid request? Determines response code"
+    },
+    {
+      "id": "original-literal-error",
+      "set": "original",
+      "current": "src/cache.ts:89 error \"miss | busy; retry\" after 2 failed retries.",
+      "h1": "U src/cache.ts:89 error \"miss | busy; retry\" after 2 failed retries",
+      "decoded": "Update: src/cache.ts:89 error \"miss | busy; retry\" after 2 failed retries"
+    },
+    {
+      "id": "original-completion",
+      "set": "original",
+      "current": "Done: Added missing return at src/auth.ts:74. Auth tests: 12 passed. Full suite: not run.",
+      "h1": "D src/auth.ts:74 added missing return\nC auth tests 12 passed; full suite not run",
+      "decoded": "Done: src/auth.ts:74 added missing return\nCheck: auth tests 12 passed; full suite not run"
+    },
+    {
+      "id": "original-minimal",
+      "set": "original",
+      "current": "Already merged.",
+      "h1": "D Already merged",
+      "decoded": "Done: Already merged"
+    },
+    {
+      "id": "evaluation-delegation",
+      "set": "evaluation",
+      "current": "Task: Inspect src/queue/worker.ts for duplicate-job handling. Scope: Read only. Check: Report findings with file:line.",
+      "h1": "T src/queue/worker.ts inspect duplicate-job handling\nS ro\nC findings file:line",
+      "decoded": "Task: src/queue/worker.ts inspect duplicate-job handling\nScope: Read only.\nCheck: findings file:line"
+    },
+    {
+      "id": "evaluation-mixed-checks",
+      "set": "evaluation",
+      "current": "Done: Patched stale cache invalidation in src/cache.ts:118. Check: 8 tests passed, 1 failed with timeout. Full suite not run.",
+      "h1": "D src/cache.ts:118 stale cache invalidation patched\nC 8 tests passed; 1 failed timeout; full suite not run",
+      "decoded": "Done: src/cache.ts:118 stale cache invalidation patched\nCheck: 8 tests passed; 1 failed timeout; full suite not run"
+    },
+    {
+      "id": "evaluation-uncertainty",
+      "set": "evaluation",
+      "current": "Update: Probably a race in lease renewal. Evidence: 2 failures in 20 local runs. Need another reproduction before assigning cause.",
+      "h1": "U Lease renewal race suspected; 2 failures in 20 local runs\nN reproduce again before assigning cause",
+      "decoded": "Update: Lease renewal race suspected; 2 failures in 20 local runs\nNext: reproduce again before assigning cause"
+    },
+    {
+      "id": "evaluation-peer-attribution",
+      "set": "evaluation",
+      "current": "Update: Peer /root/parser reports malformed CSV at fixtures/quotes.csv:9. I reproduced it with the current parser.",
+      "h1": "U Peer /root/parser reports malformed CSV fixtures/quotes.csv:9; I reproduced with current parser",
+      "decoded": "Update: Peer /root/parser reports malformed CSV fixtures/quotes.csv:9; I reproduced with current parser"
+    },
+    {
+      "id": "evaluation-exact-error",
+      "set": "evaluation",
+      "current": "Blocked: Upload request returns \"HTTP 413 | too large; max=8 MiB\". Need owner guidance on splitting the file.",
+      "h1": "B Upload request error \"HTTP 413 | too large; max=8 MiB\"\nQ owner guidance on splitting file",
+      "decoded": "Blocked: Upload request error \"HTTP 413 | too large; max=8 MiB\"\nAsk: owner guidance on splitting file"
+    },
+    {
+      "id": "evaluation-unicode-question",
+      "set": "evaluation",
+      "current": "Ask: Should \"café/客户\" keep Unicode characters in export filenames? This affects compatibility.",
+      "h1": "Q Keep Unicode \"café/客户\" in export filenames? Affects compatibility",
+      "decoded": "Ask: Keep Unicode \"café/客户\" in export filenames? Affects compatibility"
+    },
+    {
+      "id": "evaluation-tiny-update",
+      "set": "evaluation",
+      "current": "Still running.",
+      "h1": "U Still running",
+      "decoded": "Update: Still running"
+    },
+    {
+      "id": "evaluation-parent-scope",
+      "set": "evaluation",
+      "current": "Update: Parent /root narrowed scope to mobile auth. Peer /root/api owns the server fix. Next: Verify the iOS refresh path.",
+      "h1": "U Parent /root narrowed scope mobile auth; peer /root/api owns server fix\nN verify iOS refresh path",
+      "decoded": "Update: Parent /root narrowed scope mobile auth; peer /root/api owns server fix\nNext: verify iOS refresh path"
+    }
+  ]
+}
