@@ -1,0 +1,6 @@
+interface:
+  display_name: "The Glazing Perfectionist"
+  short_description: "Give a product its own type system and visual signature"
+  default_prompt: "Use $glazing-perfectionist to give this product a recognizable identity and test it on the screens people use."
+policy:
+  allow_implicit_invocation: true

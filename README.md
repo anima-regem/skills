@@ -4,6 +4,8 @@ Reusable skills for focused, practical work.
 
 | Skill | Purpose |
 | --- | --- |
+| [The Lazy Architect](lazy-architect/SKILL.md) | Find the closest working foundation, adapt it, and test the part that matters. |
+| [The Glazing Perfectionist](glazing-perfectionist/SKILL.md) | Build on existing components and Unslop UI Design to give a product a tailored type system and a recognizable visual signature. |
 | [Lean Agent Handoffs](lean-agent-handoffs/SKILL.md) | Batch related work and isolate task context, with recorded A/B usage and readable reviewer evidence. |
 | [Compact Agent Handoffs](compact-agent-handoffs/SKILL.md) | Use H1 handoffs or shared-codebook spectator games with decoded reviewer logs and reproducible benchmarks. |
 | [Unslop UI Design](unslop-ui-design/SKILL.md) | Design distinctive, polished interfaces where every element earns its place. Includes an audit worksheet and practical examples. |
