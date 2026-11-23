@@ -14,9 +14,15 @@ if scene.camera is None:
     raise RuntimeError("The submitted scene has no active camera.")
 scene.render.engine = "BLENDER_EEVEE"
 scene.eevee.taa_render_samples = 12
+if os.environ.get("GROUNDED_BENCHMARK_DRAFT"):
+    scene.eevee.taa_render_samples = 4
+    scene.eevee.use_shadows = False
+    scene.render.use_simplify = True
+    scene.render.simplify_subdivision_render = min(scene.render.simplify_subdivision_render, 2)
+    scene.render.hair_subdiv = 0
 scene.frame_start = 1
 scene.frame_end = 48
-scene.frame_step = 1
+scene.frame_step = int(os.environ.get("GROUNDED_BENCHMARK_FRAME_STEP", "1"))
 scene.render.fps = 12
 scene.render.fps_base = 1.0
 scene.render.resolution_x = 640
@@ -30,4 +36,5 @@ if os.environ.get("RIVER_WATCH_STILL"):
     scene.frame_set(24)
     bpy.ops.render.render(write_still=True)
 else:
+    scene.render.use_overwrite = False
     bpy.ops.render.render(animation=True)

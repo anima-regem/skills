@@ -9,7 +9,7 @@ Reusable skills for focused, practical work.
 | [Lean Agent Handoffs](lean-agent-handoffs/SKILL.md) | Batch related work and isolate task context, with recorded A/B usage and readable reviewer evidence. |
 | [Compact Agent Handoffs](compact-agent-handoffs/SKILL.md) | Use H1 handoffs or shared-codebook spectator games with decoded reviewer logs and reproducible benchmarks. |
 | [Unslop UI Design](unslop-ui-design/SKILL.md) | Design distinctive, polished interfaces where every element earns its place. Includes an audit worksheet and practical examples. |
-| [Grounded Animation](grounded-animation/SKILL.md) | Create and review 2D and 3D motion with deliberate timing and believable physical behavior. [River benchmark](grounded-animation/benchmark/river-watch/README.md) |
+| [Grounded Animation](grounded-animation/SKILL.md) | Create and review 2D and 3D motion with deliberate timing and believable physical behavior. [River benchmark](grounded-animation/benchmark/river-watch/README.md) · [Close-up benchmark](grounded-animation/benchmark/under-the-tree/README.md) |
 
 Each skill lives in its own directory with a `SKILL.md` entry point and any supporting references. Use `unslop-ui-design` for UI critique, mockups, or implementation within the requested scope.
 

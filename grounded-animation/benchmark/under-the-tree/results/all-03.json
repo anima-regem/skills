@@ -1,0 +1,10 @@
+{
+  "id": "all-03",
+  "condition": "all",
+  "replicate": 3,
+  "status": "timeout",
+  "elapsed_seconds": 600.07,
+  "usage": null,
+  "tool_items_completed": [],
+  "scene_produced": false
+}

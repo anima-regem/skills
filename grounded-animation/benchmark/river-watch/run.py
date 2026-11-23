@@ -59,7 +59,7 @@ FLAGS = [
 ]
 
 
-def isolated_cli():
+def isolated_cli(trial=None):
     home = Path.home()
     codex = home / ".codex"
     files = [codex / name for name in ("AGENTS.md", "AGENTS.override.md")]
@@ -67,21 +67,28 @@ def isolated_cli():
     read_rules = [f"(literal {json.dumps(str(path))})" for path in files]
     read_rules += [f"(subpath {json.dumps(str(path))})" for path in directories]
     write_rules = [f"(subpath {json.dumps(str(home / name))})" for name in ("Documents", "Projects")]
+    if trial is not None:
+        parent_path = json.dumps(str(trial.parent))
+        trial_path = json.dumps(str(trial))
+        neighbors = f"(require-all (subpath {parent_path}) (require-not (literal {parent_path})) (require-not (subpath {trial_path})))"
+        read_rules.append(neighbors)
+        shell_temps = '(require-all (subpath "/private/tmp") (require-not (regex #"^/private/tmp/zsh[[:alnum:]]+$")))'
+        write_rules.extend((neighbors, shell_temps))
     profile = f"(version 1)(allow default)(deny file-read* {' '.join(read_rules)})(deny file-write* {' '.join(write_rules)})"
     return ["/usr/bin/sandbox-exec", "-p", profile, "codex"]
 
 
-def run_trial(work, results, condition, rep, prompt, timeout):
+def run_trial(work, results, assets, condition, rep, prompt, timeout, private_scratch):
     trial_id = f"{condition}-{rep:02d}"
     trial = work / trial_id
     trial.mkdir()
-    shutil.copytree(HERE / "assets", trial / "assets")
-    command = [*isolated_cli(), "exec", *FLAGS, "-C", str(trial), "-"]
+    shutil.copytree(assets, trial / "assets")
+    command = [*isolated_cli(trial if private_scratch else None), "exec", *FLAGS, "-C", str(trial), "-"]
     started = time.monotonic()
     status = "complete"
     with (trial / "events.jsonl").open("w") as events, (trial / "stderr.log").open("w") as stderr:
         try:
-            process = subprocess.run(command, input=prompt, text=True, stdout=events, stderr=stderr, timeout=timeout)
+            process = subprocess.run(command, cwd=trial, input=prompt, text=True, stdout=events, stderr=stderr, timeout=timeout)
             if process.returncode:
                 status = f"exit-{process.returncode}"
         except subprocess.TimeoutExpired:
@@ -101,12 +108,16 @@ def run_trial(work, results, condition, rep, prompt, timeout):
     }
     if item["scene_produced"]:
         shutil.copyfile(trial / "scene.py", results / f"{trial_id}.py")
-    (results / f"{trial_id}.json").write_text(json.dumps(item, indent=2) + "\n")
+    record = results / f"{trial_id}.json"
+    temporary_record = record.with_suffix(".json.tmp")
+    temporary_record.write_text(json.dumps(item, indent=2) + "\n")
+    temporary_record.replace(record)
     print(json.dumps(item), flush=True)
 
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("--benchmark-dir", type=Path, default=HERE)
     parser.add_argument("--work", required=True, type=Path)
     parser.add_argument("--results", required=True, type=Path)
     parser.add_argument("--repeats", type=int, default=2)
@@ -114,11 +125,14 @@ def main():
     parser.add_argument("--timeout", type=int, default=300)
     parser.add_argument("--parallel", type=int, default=4)
     parser.add_argument("--only", nargs="+")
+    parser.add_argument("--private-scratch", action="store_true", help="Block shared /tmp writes and access to neighboring trial folders.")
     args = parser.parse_args()
     work, results = args.work.resolve(), args.results.resolve()
     work.mkdir(parents=True, exist_ok=True)
     results.mkdir(parents=True, exist_ok=True)
-    task = (HERE / "task.md").read_text()
+    case = args.benchmark_dir.resolve()
+    assets = case / "assets"
+    task = (case / "task.md").read_text()
     guidance = treatments()
     order = [(name, i) for i in range(args.start_replicate, args.start_replicate + args.repeats) for name in (args.only or guidance)]
     random.Random(6841).shuffle(order)
@@ -129,17 +143,18 @@ def main():
         "codex_cli": subprocess.check_output(["codex", "--version"], text=True).strip(),
         "flags": FLAGS,
         "isolation": "macOS Seatbelt blocks global AGENTS, installed skill directories, plugin cache, and the skills repository",
+        "private_scratch": args.private_scratch,
         "order": order,
         "parallel": args.parallel,
         "timeout_seconds": args.timeout,
         "prompt_sha256": {name: hashlib.sha256(prompt.encode()).hexdigest() for name, prompt in prompts.items()},
         "prompt_bytes": {name: len(prompt.encode()) for name, prompt in prompts.items()},
-        "asset_sha256": {path.name: hashlib.sha256(path.read_bytes()).hexdigest() for path in sorted((HERE / "assets").iterdir()) if path.is_file()},
+        "asset_sha256": {path.relative_to(assets).as_posix(): hashlib.sha256(path.read_bytes()).hexdigest() for path in sorted(assets.rglob("*")) if path.is_file()},
         "external_skills": EXTERNAL,
     }
     (results / "manifest.json").write_text(json.dumps(manifest, indent=2) + "\n")
     with concurrent.futures.ThreadPoolExecutor(max_workers=args.parallel) as pool:
-        futures = [pool.submit(run_trial, work, results, name, rep, prompts[name], args.timeout) for name, rep in order]
+        futures = [pool.submit(run_trial, work, results, assets, name, rep, prompts[name], args.timeout, args.private_scratch) for name, rep in order]
         for future in concurrent.futures.as_completed(futures):
             future.result()
 

@@ -1,0 +1,39 @@
+{
+  "id": "physics-only-03",
+  "condition": "physics-only",
+  "replicate": 3,
+  "status": "complete",
+  "elapsed_seconds": 340.56,
+  "usage": {
+    "input_tokens": 1378578,
+    "cached_input_tokens": 1319424,
+    "cache_write_input_tokens": 0,
+    "output_tokens": 11953,
+    "reasoning_output_tokens": 1943
+  },
+  "tool_items_completed": [
+    "command_execution",
+    "command_execution",
+    "web_search",
+    "command_execution",
+    "command_execution",
+    "command_execution",
+    "command_execution",
+    "command_execution",
+    "command_execution",
+    "command_execution",
+    "command_execution",
+    "command_execution",
+    "command_execution",
+    "command_execution",
+    "command_execution",
+    "command_execution",
+    "command_execution",
+    "command_execution",
+    "command_execution",
+    "command_execution",
+    "command_execution",
+    "command_execution"
+  ],
+  "scene_produced": true
+}

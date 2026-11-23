@@ -1,0 +1,222 @@
+{
+  "model": "gpt-6.2-sol",
+  "reasoning_effort": "low",
+  "codex_cli": "codex-cli 0.166.0",
+  "flags": [
+    "--ephemeral",
+    "--ignore-user-config",
+    "--ignore-rules",
+    "--skip-git-repo-check",
+    "--sandbox",
+    "danger-full-access",
+    "--enable",
+    "skip_host_skill_discovery",
+    "--enable",
+    "omit_skill_descriptions",
+    "--disable",
+    "plugins",
+    "--disable",
+    "apps",
+    "--disable",
+    "hooks",
+    "--disable",
+    "memories",
+    "--disable",
+    "multi_agent",
+    "--config",
+    "project_doc_max_bytes=0",
+    "--config",
+    "approval_policy=\"never\"",
+    "--config",
+    "web_search=\"cached\"",
+    "--config",
+    "model_reasoning_effort=\"low\"",
+    "--model",
+    "gpt-6.2-sol",
+    "--json"
+  ],
+  "isolation": "macOS Seatbelt blocks global AGENTS, installed skill directories, plugin cache, and the skills repository",
+  "private_scratch": true,
+  "order": [
+    [
+      "all",
+      1
+    ],
+    [
+      "caveman",
+      2
+    ],
+    [
+      "ponytail",
+      1
+    ],
+    [
+      "grounded",
+      1
+    ],
+    [
+      "all",
+      2
+    ],
+    [
+      "grounded",
+      2
+    ],
+    [
+      "caveman",
+      1
+    ],
+    [
+      "reuse-only",
+      2
+    ],
+    [
+      "raw",
+      2
+    ],
+    [
+      "reuse-only",
+      1
+    ],
+    [
+      "lazy-architect",
+      2
+    ],
+    [
+      "raw",
+      1
+    ],
+    [
+      "ponytail",
+      2
+    ],
+    [
+      "physics-only",
+      1
+    ],
+    [
+      "physics-only",
+      2
+    ],
+    [
+      "lazy-architect",
+      1
+    ],
+    [
+      "all",
+      3
+    ],
+    [
+      "grounded",
+      3
+    ],
+    [
+      "reuse-only",
+      3
+    ],
+    [
+      "lazy-architect",
+      3
+    ],
+    [
+      "physics-only",
+      3
+    ]
+  ],
+  "parallel": 6,
+  "timeout_seconds": 480,
+  "prompt_sha256": {
+    "all": "7df101ad002f563c336e4df6426ef9c0f1c8c9150a947fa3239b55d08a6083da",
+    "caveman": "b7b4ef136786af5fcb03ddff9ff4b271c9ed41060476a4328e8f53b8ef765ceb",
+    "ponytail": "79f184ea6c00d957aab3cc9b4e9a89b21a25ef69234cb13eb38af53626004ae1",
+    "grounded": "59dd9574eb7ef86325c0c84eb6ed32c4131efa3a8d37d61c35dcc9cd54e79883",
+    "reuse-only": "0f3bdf73b622f1dc65206cffd2cf1bb0eea66dce7bfe294ca98a6b9d9b76cdc0",
+    "raw": "54a501f271e6fa61fb5407f62b304acde559d72f49a0c46c7c9b31bd811f9f6a",
+    "lazy-architect": "745307fa786c6cb10e876682901dba98bd4a2d3fac9e1fb6e67b538837100bd6",
+    "physics-only": "c19e211f8c56310adb8ca7ad26930463d3501ad80a0b51196f83e922b790f87c"
+  },
+  "prompt_bytes": {
+    "all": 23492,
+    "caveman": 6603,
+    "ponytail": 5421,
+    "grounded": 12502,
+    "reuse-only": 5775,
+    "raw": 1889,
+    "lazy-architect": 4735,
+    "physics-only": 8024
+  },
+  "asset_sha256": {
+    "README.md": "4982cbfae9598b0576eefccc938ae60888a506780d2f9323beacff2bc4b071b1",
+    "einar.blend": "25729e13624f01661207a37b00ca99031f0804b18a3fa471646114b77702b778",
+    "environment/README.md": "75b8f120249a8b0d48966eae5d6e4822369e7391c1a5fd3a8f394e3330382889",
+    "environment/autumn_meadow_1k.hdr": "4862507a23d827b4f722dee835dca9ed75dbfe24b8b5cadfdc9a53c8f92f3313",
+    "environment/grass/grass_medium_01.bin": "f4587cabdb96a2e96d8be644923dc954a248edfaaa717a0ff224cacb898bee1f",
+    "environment/grass/grass_medium_01_1k.gltf": "3e5e2a314c94e16de54fd7c28e41709731fbd2b1613ab539f1544f622ddb6a85",
+    "environment/grass/textures/grass_medium_01_arm_1k.jpg": "9a3a30f72bc02f4398967c5b08f2d20cce30bd423a2613b42a727034296fa3ae",
+    "environment/grass/textures/grass_medium_01_diff_1k.jpg": "71495bd6a11fddcab0aaff38246fea1a7b802a705483f1c7cbca53955daa8050",
+    "environment/grass/textures/grass_medium_01_nor_gl_1k.jpg": "cae298d3d1d7ff7c7e210ad8ac772b96706e356f9315a6b04fde373ce01ccf1e",
+    "environment/oak_bark_diffuse.jpg": "08c26b3ea38718dfc3902d0889ac06e2ce0ae9cddb31d8988723eee1780a71c8",
+    "environment/oak_bark_normal.jpg": "bdc5a310b183fdb3dee4c2c8871b15f57f2fbbaf68253a73303d8320976b1826"
+  },
+  "external_skills": {
+    "ponytail": "https://raw.githubusercontent.com/DietrichGebert/ponytail/df9e89941d50419fd5bcf1de41e28097f1db49b2/skills/ponytail/SKILL.md",
+    "caveman": "https://raw.githubusercontent.com/JuliusBrussee/caveman/2178ed6495c3c0ecd7d037e60acf3b1d0c554b97/skills/caveman/SKILL.md"
+  },
+  "supplemental": [
+    {
+      "order": [
+        [
+          "all",
+          3
+        ],
+        [
+          "grounded",
+          3
+        ]
+      ],
+      "parallel": 2,
+      "timeout_seconds": 600
+    },
+    {
+      "order": [
+        [
+          "reuse-only",
+          3
+        ]
+      ],
+      "parallel": 1,
+      "timeout_seconds": 600
+    },
+    {
+      "order": [
+        [
+          "lazy-architect",
+          3
+        ]
+      ],
+      "parallel": 1,
+      "timeout_seconds": 600
+    },
+    {
+      "order": [
+        [
+          "physics-only",
+          3
+        ]
+      ],
+      "parallel": 1,
+      "timeout_seconds": 600
+    }
+  ],
+  "review_render": {
+    "renderer": "Blender 5.2.2 Eevee",
+    "width": 640,
+    "height": 360,
+    "source_fps": 12,
+    "frame_step": 2,
+    "review_fps": 6,
+    "samples": 4,
+    "shadows": false,
+    "subdivision_cap": 2
+  }
+}

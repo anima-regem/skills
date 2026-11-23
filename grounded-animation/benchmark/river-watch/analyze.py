@@ -11,7 +11,7 @@ from pathlib import Path
 ORDER = ("raw", "physics-only", "reuse-only", "grounded", "lazy-architect", "ponytail", "caveman", "all")
 
 
-def probe_video(path):
+def probe_video(path, frame_step):
     if not path.is_file():
         return False
     inspection = subprocess.check_output([
@@ -20,13 +20,14 @@ def probe_video(path):
     ], text=True)
     streams = json.loads(inspection)["streams"]
     return len(streams) == 1 and all(streams[0].get(key) == value for key, value in {
-        "width": 640, "height": 360, "r_frame_rate": "12/1", "nb_frames": "48", "duration": "4.000000",
+        "width": 640, "height": 360, "r_frame_rate": f"{12 // frame_step}/1", "nb_frames": str(48 // frame_step), "duration": "4.000000",
     }.items())
 
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--results", type=Path, default=Path(__file__).resolve().parent / "results")
+    parser.add_argument("--frame-step", type=int, choices=(1, 2), default=1)
     args = parser.parse_args()
     manifest = json.loads((args.results / "manifest.json").read_text())
     grouped = {name: [] for name in ORDER}
@@ -37,7 +38,7 @@ def main():
     for name, repeat in sorted(manifest["order"], key=lambda item: (ORDER.index(item[0]), item[1])):
         trial = f"{name}-{repeat:02d}"
         row = json.loads((args.results / f"{trial}.json").read_text())
-        passed = probe_video(args.results / f"{trial}.mp4")
+        passed = probe_video(args.results / f"{trial}.mp4", args.frame_step)
         rendered[name] += passed
         video = f"[MP4](results/{trial}.mp4)" if passed else "No passing render"
         usage = row["usage"]
