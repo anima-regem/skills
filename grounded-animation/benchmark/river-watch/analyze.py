@@ -4,24 +4,12 @@ import argparse
 from collections import Counter
 import json
 import statistics
-import subprocess
 from pathlib import Path
+
+from timing import from_manifest, probe_video
 
 
 ORDER = ("raw", "physics-only", "reuse-only", "grounded", "lazy-architect", "ponytail", "caveman", "all")
-
-
-def probe_video(path, frame_step):
-    if not path.is_file():
-        return False
-    inspection = subprocess.check_output([
-        "ffprobe", "-v", "error", "-select_streams", "v:0", "-show_entries",
-        "stream=width,height,r_frame_rate,nb_frames,duration", "-of", "json", str(path),
-    ], text=True)
-    streams = json.loads(inspection)["streams"]
-    return len(streams) == 1 and all(streams[0].get(key) == value for key, value in {
-        "width": 640, "height": 360, "r_frame_rate": f"{12 // frame_step}/1", "nb_frames": str(48 // frame_step), "duration": "4.000000",
-    }.items())
 
 
 def main():
@@ -30,6 +18,11 @@ def main():
     parser.add_argument("--frame-step", type=int, choices=(1, 2), default=1)
     args = parser.parse_args()
     manifest = json.loads((args.results / "manifest.json").read_text())
+    timing = from_manifest(manifest)
+    try:
+        timing.check_frame_step(args.frame_step)
+    except ValueError as error:
+        parser.error(str(error))
     grouped = {name: [] for name in ORDER}
     attempts = Counter(name for name, _ in manifest["order"])
     rendered = Counter()
@@ -38,7 +31,7 @@ def main():
     for name, repeat in sorted(manifest["order"], key=lambda item: (ORDER.index(item[0]), item[1])):
         trial = f"{name}-{repeat:02d}"
         row = json.loads((args.results / f"{trial}.json").read_text())
-        passed = probe_video(args.results / f"{trial}.mp4", args.frame_step)
+        passed = probe_video(args.results / f"{trial}.mp4", timing, args.frame_step)
         rendered[name] += passed
         video = f"[MP4](results/{trial}.mp4)" if passed else "No passing render"
         usage = row["usage"]

@@ -9,7 +9,10 @@ import shutil
 import subprocess
 import time
 import urllib.request
+from dataclasses import asdict
 from pathlib import Path
+
+from timing import LEGACY, for_case
 
 
 HERE = Path(__file__).resolve().parent
@@ -133,6 +136,15 @@ def main():
     case = args.benchmark_dir.resolve()
     assets = case / "assets"
     task = (case / "task.md").read_text()
+    timing = for_case(case)
+    if timing != LEGACY:
+        task += (
+            "\n## Benchmark delivery timing\n\n"
+            f"Author {timing.seconds} seconds of animation at native {timing.fps} fps. "
+            f"Set Blender's frame start to 1, frame end to {timing.frames}, FPS to {timing.fps}, "
+            "and FPS base to 1.0 in scene.py. Stage the action over the full timeline, "
+            "including any intentional holds. The benchmark renderer evaluates every source frame.\n"
+        )
     guidance = treatments()
     order = [(name, i) for i in range(args.start_replicate, args.start_replicate + args.repeats) for name in (args.only or guidance)]
     random.Random(6841).shuffle(order)
@@ -147,6 +159,7 @@ def main():
         "order": order,
         "parallel": args.parallel,
         "timeout_seconds": args.timeout,
+        "delivery_timing": asdict(timing),
         "prompt_sha256": {name: hashlib.sha256(prompt.encode()).hexdigest() for name, prompt in prompts.items()},
         "prompt_bytes": {name: len(prompt.encode()) for name, prompt in prompts.items()},
         "asset_sha256": {path.relative_to(assets).as_posix(): hashlib.sha256(path.read_bytes()).hexdigest() for path in sorted(assets.rglob("*")) if path.is_file()},
