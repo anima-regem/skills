@@ -1,0 +1,22 @@
+{
+  "id": "caveman-02",
+  "condition": "caveman",
+  "replicate": 2,
+  "status": "complete",
+  "elapsed_seconds": 135.53,
+  "usage": {
+    "input_tokens": 189003,
+    "cached_input_tokens": 161152,
+    "cache_write_input_tokens": 0,
+    "output_tokens": 5292,
+    "reasoning_output_tokens": 297
+  },
+  "tool_items_completed": [
+    "command_execution",
+    "command_execution",
+    "command_execution",
+    "command_execution",
+    "command_execution"
+  ],
+  "scene_produced": true
+}

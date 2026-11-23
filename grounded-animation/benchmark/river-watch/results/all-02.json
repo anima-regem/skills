@@ -1,0 +1,28 @@
+{
+  "id": "all-02",
+  "condition": "all",
+  "replicate": 2,
+  "status": "complete",
+  "elapsed_seconds": 196.19,
+  "usage": {
+    "input_tokens": 462626,
+    "cached_input_tokens": 416128,
+    "cache_write_input_tokens": 0,
+    "output_tokens": 7751,
+    "reasoning_output_tokens": 693
+  },
+  "tool_items_completed": [
+    "command_execution",
+    "command_execution",
+    "command_execution",
+    "command_execution",
+    "web_search",
+    "command_execution",
+    "command_execution",
+    "command_execution",
+    "command_execution",
+    "command_execution",
+    "command_execution"
+  ],
+  "scene_produced": true
+}

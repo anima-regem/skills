@@ -1,0 +1,22 @@
+{
+  "id": "raw-01",
+  "condition": "raw",
+  "replicate": 1,
+  "status": "complete",
+  "elapsed_seconds": 136.08,
+  "usage": {
+    "input_tokens": 156291,
+    "cached_input_tokens": 135680,
+    "cache_write_input_tokens": 0,
+    "output_tokens": 5565,
+    "reasoning_output_tokens": 445
+  },
+  "tool_items_completed": [
+    "command_execution",
+    "command_execution",
+    "command_execution",
+    "command_execution",
+    "command_execution"
+  ],
+  "scene_produced": true
+}

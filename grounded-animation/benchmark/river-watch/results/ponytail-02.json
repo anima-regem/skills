@@ -1,0 +1,22 @@
+{
+  "id": "ponytail-02",
+  "condition": "ponytail",
+  "replicate": 2,
+  "status": "complete",
+  "elapsed_seconds": 130.76,
+  "usage": {
+    "input_tokens": 226356,
+    "cached_input_tokens": 207232,
+    "cache_write_input_tokens": 0,
+    "output_tokens": 5006,
+    "reasoning_output_tokens": 419
+  },
+  "tool_items_completed": [
+    "command_execution",
+    "command_execution",
+    "command_execution",
+    "command_execution",
+    "command_execution"
+  ],
+  "scene_produced": true
+}

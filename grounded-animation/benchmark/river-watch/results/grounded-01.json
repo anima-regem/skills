@@ -1,0 +1,15 @@
+{
+  "id": "grounded-01",
+  "condition": "grounded",
+  "replicate": 1,
+  "status": "timeout",
+  "elapsed_seconds": 300.01,
+  "usage": null,
+  "tool_items_completed": [
+    "command_execution",
+    "web_search",
+    "command_execution",
+    "command_execution"
+  ],
+  "scene_produced": false
+}

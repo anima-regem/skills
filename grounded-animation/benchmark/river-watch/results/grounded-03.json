@@ -1,0 +1,27 @@
+{
+  "id": "grounded-03",
+  "condition": "grounded",
+  "replicate": 3,
+  "status": "complete",
+  "elapsed_seconds": 236.22,
+  "usage": {
+    "input_tokens": 594678,
+    "cached_input_tokens": 532736,
+    "cache_write_input_tokens": 0,
+    "output_tokens": 8785,
+    "reasoning_output_tokens": 845
+  },
+  "tool_items_completed": [
+    "command_execution",
+    "command_execution",
+    "web_search",
+    "command_execution",
+    "web_search",
+    "command_execution",
+    "command_execution",
+    "command_execution",
+    "command_execution",
+    "command_execution"
+  ],
+  "scene_produced": true
+}

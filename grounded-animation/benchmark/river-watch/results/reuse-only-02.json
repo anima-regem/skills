@@ -1,0 +1,26 @@
+{
+  "id": "reuse-only-02",
+  "condition": "reuse-only",
+  "replicate": 2,
+  "status": "complete",
+  "elapsed_seconds": 177.91,
+  "usage": {
+    "input_tokens": 448844,
+    "cached_input_tokens": 394496,
+    "cache_write_input_tokens": 0,
+    "output_tokens": 6771,
+    "reasoning_output_tokens": 760
+  },
+  "tool_items_completed": [
+    "command_execution",
+    "command_execution",
+    "web_search",
+    "command_execution",
+    "command_execution",
+    "command_execution",
+    "command_execution",
+    "command_execution",
+    "command_execution"
+  ],
+  "scene_produced": true
+}

@@ -1,0 +1,28 @@
+{
+  "id": "lazy-architect-02",
+  "condition": "lazy-architect",
+  "replicate": 2,
+  "status": "complete",
+  "elapsed_seconds": 210.8,
+  "usage": {
+    "input_tokens": 477624,
+    "cached_input_tokens": 427520,
+    "cache_write_input_tokens": 0,
+    "output_tokens": 7776,
+    "reasoning_output_tokens": 1104
+  },
+  "tool_items_completed": [
+    "command_execution",
+    "command_execution",
+    "command_execution",
+    "command_execution",
+    "command_execution",
+    "command_execution",
+    "command_execution",
+    "command_execution",
+    "command_execution",
+    "command_execution",
+    "command_execution"
+  ],
+  "scene_produced": true
+}

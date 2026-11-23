@@ -1,0 +1,23 @@
+{
+  "id": "physics-only-02",
+  "condition": "physics-only",
+  "replicate": 2,
+  "status": "complete",
+  "elapsed_seconds": 183.41,
+  "usage": {
+    "input_tokens": 342512,
+    "cached_input_tokens": 296320,
+    "cache_write_input_tokens": 0,
+    "output_tokens": 7418,
+    "reasoning_output_tokens": 417
+  },
+  "tool_items_completed": [
+    "command_execution",
+    "web_search",
+    "command_execution",
+    "command_execution",
+    "command_execution",
+    "command_execution"
+  ],
+  "scene_produced": true
+}

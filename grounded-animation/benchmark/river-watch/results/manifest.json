@@ -1,0 +1,149 @@
+{
+  "model": "gpt-6.2-sol",
+  "reasoning_effort": "low",
+  "codex_cli": "codex-cli 0.166.0",
+  "flags": [
+    "--ephemeral",
+    "--ignore-user-config",
+    "--ignore-rules",
+    "--skip-git-repo-check",
+    "--sandbox",
+    "danger-full-access",
+    "--enable",
+    "skip_host_skill_discovery",
+    "--enable",
+    "omit_skill_descriptions",
+    "--disable",
+    "plugins",
+    "--disable",
+    "apps",
+    "--disable",
+    "hooks",
+    "--disable",
+    "memories",
+    "--disable",
+    "multi_agent",
+    "--config",
+    "project_doc_max_bytes=0",
+    "--config",
+    "approval_policy=\"never\"",
+    "--config",
+    "web_search=\"cached\"",
+    "--config",
+    "model_reasoning_effort=\"low\"",
+    "--model",
+    "gpt-6.2-sol",
+    "--json"
+  ],
+  "isolation": "macOS Seatbelt blocks global AGENTS, installed skill directories, plugin cache, and the skills repository",
+  "order": [
+    [
+      "all",
+      1
+    ],
+    [
+      "caveman",
+      2
+    ],
+    [
+      "ponytail",
+      1
+    ],
+    [
+      "grounded",
+      1
+    ],
+    [
+      "all",
+      2
+    ],
+    [
+      "grounded",
+      2
+    ],
+    [
+      "caveman",
+      1
+    ],
+    [
+      "reuse-only",
+      2
+    ],
+    [
+      "raw",
+      2
+    ],
+    [
+      "reuse-only",
+      1
+    ],
+    [
+      "lazy-architect",
+      2
+    ],
+    [
+      "raw",
+      1
+    ],
+    [
+      "ponytail",
+      2
+    ],
+    [
+      "physics-only",
+      1
+    ],
+    [
+      "physics-only",
+      2
+    ],
+    [
+      "lazy-architect",
+      1
+    ],
+    [
+      "grounded",
+      3
+    ]
+  ],
+  "parallel": 6,
+  "prompt_sha256": {
+    "all": "e387d8c3548bcc0a07e0e6905f35a3625c888a9c11c390787a9835a386f6626b",
+    "caveman": "e3d7bd9ff19d38e94aba9c6f6f7ba62d5ec39570cd3b4edfc3d5950bc1316ced",
+    "ponytail": "d6facd17d75bc8a6c28bc8f1a9acd786a0d0cd18a72f8460358c206bc7983062",
+    "grounded": "f9c080d1de225d1d250512d10de290106f9864212b2455f28957f65d86a4762c",
+    "reuse-only": "73d5f3f0aa2a9605ab3061c08ac360561abe30d091e357cb10be110d7b952bde",
+    "raw": "154fceab146d07cd35ebe3eba6011200c65f1544ed2710f133f2bdfcb96380ec",
+    "lazy-architect": "dd4f7396473782a26886f1fae7544259eec4421776ac776e305fca17e779f0e7",
+    "physics-only": "92275504157cd1041c588e573ee366aa7daadacb0d6c200a704996232613ba36"
+  },
+  "prompt_bytes": {
+    "all": 22562,
+    "caveman": 5673,
+    "ponytail": 4491,
+    "grounded": 11572,
+    "reuse-only": 4845,
+    "raw": 959,
+    "lazy-architect": 3805,
+    "physics-only": 7094
+  },
+  "asset_sha256": {
+    "README.md": "beafded6e97f0a6c20c338dee33deb7e11eaf82d8f83d1dcdf79e4163c64ddb8",
+    "watcher.glb": "b30280bc0415059bf46b0ff602ba14e94f147f73012f3c57ef965248cce19a70"
+  },
+  "external_skills": {
+    "ponytail": "https://raw.githubusercontent.com/DietrichGebert/ponytail/df9e89941d50419fd5bcf1de41e28097f1db49b2/skills/ponytail/SKILL.md",
+    "caveman": "https://raw.githubusercontent.com/JuliusBrussee/caveman/2178ed6495c3c0ecd7d037e60acf3b1d0c554b97/skills/caveman/SKILL.md"
+  },
+  "timeout_seconds": 300,
+  "supplemental": {
+    "order": [
+      [
+        "grounded",
+        3
+      ]
+    ],
+    "parallel": 1,
+    "timeout_seconds": 480
+  }
+}
